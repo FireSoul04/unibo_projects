@@ -1,39 +1,10 @@
 #include <stdio.h>
+#include <conio.h>
 #include <ctype.h>
 
-#ifdef _WIN32 // valido sia per 32 che 64 bit
-    #include <conio.h>
-#else
-    #include <termios.h>
-    #include <unistd.h>
-
-    int getch(void) {
-        struct termios oldattr, newattr;
-        int ch;
-        tcgetattr( STDIN_FILENO, &oldattr );
-        newattr = oldattr;
-        newattr.c_lflag &= ~( ICANON | ECHO );
-        tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-        ch = getchar();
-        tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
-        return ch;
-    }
-
-    int getche(void) {
-        struct termios oldattr, newattr;
-        int ch;
-        tcgetattr( STDIN_FILENO, &oldattr );
-        newattr = oldattr;
-        newattr.c_lflag &= ~( ICANON );
-        tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-        ch = getchar();
-        tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
-        return ch;
-    }
-#endif
-
 int main() {
-    char c = ' ';
+    char c = ' '; // Carattere dell'utente
+    // Contatore per ogni funzione di cytpe.h
     int alphaNums = 0,
         alphabetChars = 0,
         controlChars = 0,
@@ -46,9 +17,13 @@ int main() {
         spaces = 0,
         hexDigits = 0;
 
+    printf("Inserisci dei caratteri a piacere e concludi con #\n");
     do {
-        c = getche();
+        // Chiedo all'utente un carattere
+        c = getch();
+        printf("%c", c);
         
+        // Aumento il contatore associato ad ogni funzione della libreria ctype.h
         if (isalnum(c)) {
             alphaNums++;
         }
@@ -82,8 +57,9 @@ int main() {
         if (isxdigit(c)) {
             hexDigits++;
         }
-    } while(c != '#');
+    } while(c != '#'); // Concludo il ciclo quando l'utente inserisce #
 
+    // Stampo i contatori delle funzioni
     printf("\nCaratteri alfanumerici: %d\n", alphaNums);
     printf("Caratteri dell'alfabeto: %d\n", alphabetChars);
     printf("Caratteri di controllo: %d\n", controlChars);

@@ -1,30 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+    #define FFLUSH fflush(stdin)
+#else
+    void _fflush() {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF) {}
+    }
+
+    #define FFLUSH _fflush()
+#endif
+
 #define MAX 30
-
-/*Scrivere un programma C che riceva in ingresso due parole inserite da tastiera.
-Si consideri che ciascuna parola può contenere al massimo 30 caratteri.
-Il programma deve essere case sensitive, cioè deve distinguere lettere
-minuscole da lettere maiuscole e deve essere in grado anche di analizzare
-numeri, simboli e segni di punteggiatura. Il programma deve sostituire
-ogni occorrenza della seconda parola nella prima parola con il carattere ’*’.
-Ad esempio, inserite le stringhe:
-
-abchdfffchdchdtlchd
-
-e:
-
-chd
-
-il programma deve visualizzare la stringa:
-
-ab*fff**tl*
-
-Scrivere due versioni: la prima deve ignorare la presenza della libreria
-string.h e quindi dovete lavorare esplicitamente su ogni singolo carattere
-delle stringhe. La seconda deve usare le funzioni della libreria string.h per
-determinare la lunghezza e per ricercare sotto-stringhe all'interno di una stringa*/
 
 unsigned int length_of_string(char* str) {
     unsigned int length = 0;
@@ -38,51 +26,89 @@ unsigned int length_of_string(char* str) {
 
 /**
  * Converte una stringa senza utilizzare string.h
- * @param str1 stringa dove sostituire i caratteri
- * @param str2 stringa contenente i caratteri da sostituire
+ * @param string stringa dove sostituire i caratteri
+ * @param substring stringa contenente i caratteri da sostituire
 */
-void convert_string1(char* str_ret, char* str1, char* str2) {
+void convert_string1(char* str_ret, char* string, char* substring) {
     int k = 0,
         common_letters_counter = 0, // Contatore per controllare se trovo due caratteri di fila da convertire
-        str2_length = length_of_string(str2); // Lunghezza della stringa contenente i caratteri da sostituire
-
+        substring_length = length_of_string(substring); // Lunghezza della stringa contenente i caratteri da sostituire
+        
     // Controllo ogni carattere della stringa
-    for (int i = 0; str1[i] != '\0'; i++) {
-        common_letters_counter = 0;
-
-        for (int j = 0; str2[j] != '\0'; j++) {
-            printf("%c==%c; ", str1[i], str2[j]);
-            // if (str1[i + common_letters_counter++] != str2[j]) {
-            //     common_letters_counter = 0;
-            // }
+    for (int i = 0; string[i] != '\0'; i++) {
+        // Controllo ogni carattere della prima stringa e finché sono uguali ai caratteri della seconda stringa aggiungo quanti caratteri hanno in comune
+        if (string[i] == substring[0]) {
+            for (int j = 0; substring[j] != '\0'; j++) {
+                if (string[i + common_letters_counter] == substring[j]) { // Controllo se i caratteri corrispondono
+                    common_letters_counter++; // Salvo quanti caratteri sono in comune
+                } else {
+                    common_letters_counter = 0;
+                }
+            }
         }
-        printf("\n");
 
-        if (common_letters_counter == str2_length) {
+        // Controllo quando bisogna sostituire con un asterisco la sottostringa in comune
+        if (common_letters_counter == substring_length) {
+            common_letters_counter = 0;
             str_ret[k++] = '*';
+            i += substring_length - 1; // Il ciclo controlla la posizione dopo le lettere in comune
         } else if (common_letters_counter == 0) {
-            str_ret[k++] = str1[i];
+            str_ret[k++] = string[i]; // Salvo nella stringa di ritorno i caratteri che non sono in comune
         }
     }
 }
 
 /**
  * Converte una stringa utilizzando string.h
- * @param str1 stringa dove sostituire i caratteri
- * @param str2 stringa contenente i caratteri da sostituire
+ * @param string stringa dove sostituire i caratteri
+ * @param substring stringa contenente i caratteri da sostituire
 */
-void convert_string2(char* str1, const char* str2) {
+void convert_string2(char* str_ret, char* string, char* substring) {
+    int common_letters_counter = 0, // Contatore per controllare se trovo due caratteri di fila da convertire
+        substring_length = length_of_string(substring); // Lunghezza della stringa contenente i caratteri da sostituire
+
+    // Azzero la stringa di ritorno
+    str_ret[0] = '\0';
     
+    for (int i = 0; string[i] != '\0'; i++) {
+        for (int j = 0; substring[j] != '\0'; j++) {
+            // Controllo ogni sottostringa partendo dalla posizione i della stringa se combacia con la sottostringa
+            if (strncmp(string + i + j, substring + j, substring_length - common_letters_counter) == 0) {
+                common_letters_counter++; // Salvo quanti caratteri sono in comune
+            } else {
+                common_letters_counter = 0;
+            }
+        }
+
+        // Controllo quando bisogna sostituire con un asterisco la sottostringa in comune
+        if (common_letters_counter == substring_length) {
+            strcat(str_ret, "*");
+            common_letters_counter = 0;
+            i += substring_length - 1; // Il ciclo controlla la posizione dopo le lettere in comune
+        } else {
+            strncat(str_ret, string + i, 1); // Salvo nella stringa di ritorno i caratteri che non sono in comune
+        }
+    }
 }
 
 int main() {
-    char str1[] = "abchdfffchdchdtlchd";
-    char str2[] = "chdf";
-    char str3[MAX];
+    char string[MAX] = "";
+    char substring[MAX] = "";
+    char string_sustitute[MAX] = "";
 
-    printf("STR1: %s\n", str1);
-    printf("STR2: %s\n", str2);
-    convert_string1(str3, str1, str2);
-    printf("STR3: %s\n", str3);
+    printf("Programma per sostituire ogni volta che appare una sottostringa in una stringa con un *\n");
+
+    printf("Stampare una stringa di massimo 30 caratteri:\n");
+    gets(string);
+    FFLUSH;
+
+    printf("Stampare una sottostringa da sostituire con * nella stringa precedente di massimo 30 caratteri:\n");
+    gets(substring);
+    FFLUSH;
+    
+    convert_string1(string_sustitute, string, substring);
+    printf("Stringa senza string.h: %s\n", string_sustitute);
+    convert_string2(string_sustitute, string, substring);
+    printf("Stringa con string.h:   %s\n", string_sustitute);
     return 0;
-}
+} 

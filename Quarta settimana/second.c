@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WIN32 // valido sia per 32 che 64 bit
+#ifdef _WIN32 /*valido sia per 32 che 64 bit*/
     #include <conio.h>
 #else
     #include <termios.h>
