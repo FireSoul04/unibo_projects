@@ -11,7 +11,7 @@
 
 //Definisco il fattore di conversione da miglia per gallone a litri per 100km
 #define MILES_TO_KILOMETERS (1.60934)
-#define GALLONS_TO_LITERS (3,78541)
+#define GALLONS_TO_LITERS (3.78541)
 
 int main()
 {
