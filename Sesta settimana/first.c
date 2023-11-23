@@ -316,7 +316,7 @@ int get_action(double q_table[Q_HEIGHT][DIRECTIONS], int directions[DIRECTIONS][
 }
 
 // Funzione per mostrare il percorso che il robot ha imparato dopo la sua sessione di allenamento
-void show_final_path(int start_map[MAP_HEIGHT][MAP_LENGTH], double q_table[Q_HEIGHT][DIRECTIONS], int directions[DIRECTIONS][2], int states[STATES], const char direction_names[DIRECTIONS], int start_x, int start_y) {
+void show_final_path(const int start_map[MAP_HEIGHT][MAP_LENGTH], double q_table[Q_HEIGHT][DIRECTIONS], int directions[DIRECTIONS][2], int states[STATES], const char direction_names[DIRECTIONS], int start_x, int start_y) {
     // Porto la mappa allo stato iniziale
     int map[MAP_HEIGHT][MAP_LENGTH];
     reset_map(start_map, map);
