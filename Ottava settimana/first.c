@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
+#include "queue.h"
 
 #define STRING_LENGTH 200
-#define DATASET_LENGTH 4
 #define DATASET_COLUMNS 11
 
 #define ANY 0 //?
@@ -14,9 +16,6 @@
 
 typedef char string_t[STRING_LENGTH + 1];
 typedef char* dynamic_string_t;
-typedef struct Data {
-    int how_crowded, price, restaurant_type, estimated_waiting_time, has_alternative, has_waiting_room, is_weekend, is_hungry, is_raining, is_reserved, do_wait;
-} data_t;
 
 dynamic_string_t yes_no[3] = { "?", "no", "yes" },
     how_crowded[4] = { "?", "none", "someone", "full" },
@@ -28,31 +27,37 @@ dynamic_string_t yes_no[3] = { "?", "no", "yes" },
 void print_data(data_t *);
 void set_value(int *, char, const dynamic_string_t);
 int generalize(data_t *, data_t *);
-
-data_t* read_data(int, int);
+int read_data_from_file(queue_t *, int);
+int read_data_from_user(queue_t *);
 
 int main() {
     // Ipotesi generico
     data_t h = { EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY };
-    data_t *dataset = read_data(DATASET_LENGTH, DATASET_COLUMNS);
+    queue_t dataset;
+    init_queue(&dataset);
+    read_data_from_file(&dataset, DATASET_COLUMNS);
 
     int training_steps = 0;
     
+    node_t *current = dataset.first;
     // Stampa tutto il dataset
-    // for (int i = 0; i < DATASET_LENGTH; i++) {
+    // for (int i = 0; current != NULL; i++) {
     //     printf("index: %d\n", i);
     //     print_data(dataset);
     //     puts("");
+    //     current = current->next;
     // }
 
-    for (int i = 0; i < DATASET_LENGTH; i++) {
-        training_steps += generalize(&dataset[i], &h);
+    current = dataset.first;
+    while (current != NULL) {
+        training_steps += generalize(&current->data, &h);
+        current = current->next;
     }
 
     // Stampo l'ipotesi generica
     print_data(&h);
     printf("Valori positivi: %d\n", training_steps);
-    free(dataset);
+    free_queue(&dataset);
     system("pause");
 
     return 0;
@@ -140,8 +145,12 @@ void set_value(int *value, char check, const dynamic_string_t possible_values) {
     }
 }
 
+int read_data_from_user(queue_t *dataset) {
+    
+}
+
 // Funzione per leggere i dati dal dataset
-data_t* read_data(int length, int columns) {
+int read_data_from_file(queue_t *dataset, int columns) {
     const char separator[2] = ",";
     
     // Apro il file in lettura
@@ -151,76 +160,71 @@ data_t* read_data(int length, int columns) {
         exit(1);
     }
 
-    // Creo un array di strutture per salvare i dati del dataset in memoria
-    data_t *dataset = (data_t *) malloc(sizeof(data_t) * length);
-    if (dataset == NULL) {
-        puts("Memoria insufficente...");
-        exit(1);
-    }
-
     dynamic_string_t token;
     string_t data;
+    data_t new_node;
     
     // Salto la prima riga
     fgets(data, STRING_LENGTH + 1, data_sheet);
 
     // Eseguo un ciclo finché non leggo completamente il file
-    for (int i = 0; i < length && fgets(data, STRING_LENGTH + 1, data_sheet) != NULL; i++) {
+    for (int i = 0; fgets(data, STRING_LENGTH + 1, data_sheet) != NULL; i++) {
         // Gestisco ogni dato singolarmente
         token = strtok(data, separator);
         for (int j = 0; j < columns && token != NULL; j++) {
             switch (j) {
                 case 0:
-                    set_value(&dataset[i].has_alternative, token[0], "ny");
+                    set_value(&new_node.has_alternative, token[0], "ny");
                     break;
                 case 1:
-                    set_value(&dataset[i].has_waiting_room, token[0], "ny");
+                    set_value(&new_node.has_waiting_room, token[0], "ny");
                     break;
                 case 2:
-                    set_value(&dataset[i].is_weekend, token[0], "ny");
+                    set_value(&new_node.is_weekend, token[0], "ny");
                     break;
                 case 3:
-                    set_value(&dataset[i].is_hungry, token[0], "ny");
+                    set_value(&new_node.is_hungry, token[0], "ny");
                     break;
                 case 4:
                     // 0=$, 1=none, 2=someone, 3=full
-                    set_value(&dataset[i].how_crowded, token[0], "nsf");
+                    set_value(&new_node.how_crowded, token[0], "nsf");
                     break;
                 case 5:
                     // 0=$, 1=$, 2=$$, 3=$$$
-                    dataset[i].price = strlen(token);
+                    new_node.price = strlen(token);
                     break;
                 case 6:
-                    set_value(&dataset[i].is_raining, token[0], "ny");
+                    set_value(&new_node.is_raining, token[0], "ny");
                     break;
                 case 7:
-                    set_value(&dataset[i].is_reserved, token[0], "ny");
+                    set_value(&new_node.is_reserved, token[0], "ny");
                     break;
                 case 8:
                     // 0=$, 1=italian, 2=french, 3=thai, 4=fast_food
-                    set_value(&dataset[i].restaurant_type, token[1], "trha");
+                    set_value(&new_node.restaurant_type, token[1], "trha");
                     break;
                 case 9:
                     // 0=$, 1=<10, 2=10-29, 3=30-60, 4=>60
-                    set_value(&dataset[i].estimated_waiting_time, token[0], "<13>");
+                    set_value(&new_node.estimated_waiting_time, token[0], "<13>");
                     break;
                 case 10:
-                    set_value(&dataset[i].do_wait, token[0], "ny");
+                    set_value(&new_node.do_wait, token[0], "ny");
                     break;
             }
             token = strtok(NULL, separator);
         }
+        add_node(dataset, &new_node);
     }
     // Chiudo il file e ritorno l'array di strutture
     fclose(data_sheet);
-    return dataset;
+    return 0;
 }
 
 void print_data(data_t *dataset) {
     // Controllo se i campi sono vuoti
     if (dataset->has_alternative == EMPTY) {
         puts("Non e' stato possibile allenare abbastanza...");
-        return;
+        exit(1);
     }
     printf("has_alternative: %s\n", yes_no[dataset->has_alternative]);
     printf("has_waiting_room: %s\n", yes_no[dataset->has_waiting_room]);
