@@ -3,75 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _WIN32
-	#define FFLUSH fflush(stdin)
-	#define CLEAR system("cls")
-#else
-    void _fflush() {
-        int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF) {}
-    }
-
-    #define FFLUSH _fflush()
-	#define CLEAR system("clear")
-#endif
-
-#define STRING_LENGTH 200
-#define DATASET_COLUMNS 11
-
-#define ANY 0 //?
-#define EMPTY -1 //phi
-
-#define YES 2
-#define NO 1
-
-typedef char string_t[STRING_LENGTH + 1];
-
-// Struttura contenente le recensioni
-typedef struct Feedback {
-    int how_crowded, price, restaurant_type, estimated_waiting_time, has_alternative, has_waiting_room, is_weekend, is_hungry, is_raining, is_reserved, do_wait;
-} feedback_t;
-
-// Nodo della coda
-typedef struct Node {
-    feedback_t feedback;
-    struct Node *next; 
-} node_t;
-
-// Struttura coda
-typedef struct Queue {
-    node_t *first, *last;
-    int length;
-} queue_t;
-
-// Stringhe per stampare in modo leggibile i dati del dataset che sono interamente numerici
-char *yes_no[3] = { "?", "no", "yes" },
-    *how_crowded[4] = { "?", "none", "someone", "full" },
-    *price[4] = { "?", "economic", "average", "expensive" },
-    *restaurant_type[5] = { "?", "italian", "french", "thai", "fast_food" },
-    *estimated_waiting_time[5] = { "?", "<10", "10-29", "30-60", ">60" };
-
-// Funzioni per gestire una coda
-int init_queue(queue_t *);
-int free_queue(queue_t *);
-int add_node(queue_t *, feedback_t *);
-
-void training_phase(queue_t *, feedback_t *, const feedback_t *);
-int testing_phase(queue_t *, feedback_t *);
-
-int compare_specific(int, int);
-int compare_hypotesis(int, int);
-
-int find_s(feedback_t *, feedback_t *);
-int read_val(feedback_t *, char *, int);
-int read_data_from_file(queue_t *, char *, int);
-int read_data_from_user(feedback_t *);
-
-int set_value(int *, char, const char *);
-int print_data(feedback_t *);
-int do_wait(feedback_t *, feedback_t *, int);
-
-void wait_user_input(feedback_t *, int, string_t, char *);
+#include "first.h"
 
 int main() {
     // Ipotesi generico
@@ -366,8 +298,13 @@ int read_val(feedback_t *new_feedback, char *str, int index) {
             // 0=?, 1=none, 2=someone, 3=full
             return set_value(&new_feedback->how_crowded, str[0], "nsf");
         case 5:
-            // 0=$, 1=$, 2=$$, 3=$$$
+            // 0=?, 1=$, 2=$$, 3=$$$
             int length = strlen(str);
+            for (int i = 0; i < length; i++) {
+                if (str[i] != '$') {
+                    return -1;
+                }
+            }
             if (length < 0 || length > 3) {
                 return -1;
             } else {
@@ -392,7 +329,7 @@ int read_val(feedback_t *new_feedback, char *str, int index) {
 }
 
 // Funzione per chiedere i dati all'utente da aggiungere al training set
-int read_data_from_user(feedback_t *new_feedback) {
+void read_data_from_user(feedback_t *new_feedback) {
     string_t new_data;
     char ch;
 
@@ -446,9 +383,9 @@ int read_data_from_file(queue_t *dataset, char *file_path, int columns) {
     for (int i = 0; fgets(data, STRING_LENGTH + 1, data_sheet) != NULL; i++) {
         // Gestisco ogni dato singolarmente
         token = strtok(data, separator);
-        for (int j = 0; j < columns && token != NULL; j++) {
+        for (int j = 0; j < columns; j++) {
             // Se anche solo un valore è invalido creo una coda nuova
-            if (read_val(&new_feedback, token, j) == -1) {
+            if (read_val(&new_feedback, token, j) == -1 || token == NULL) {
                 free_queue(dataset);
                 return -1;
             }
@@ -458,7 +395,7 @@ int read_data_from_file(queue_t *dataset, char *file_path, int columns) {
             puts("Memoria insufficente");
         }
     }
-    // Chiudo il file e ritorno l'array di strutture
+    // Chiudo il file e ritorno la coda di strutture
     fclose(data_sheet);
     return 0;
 }
@@ -470,6 +407,7 @@ int print_data(feedback_t *feedback) {
         puts("Non e' stato possibile allenare abbastanza...");
         return -1;
     }
+
     printf("has_alternative: %s\n", yes_no[feedback->has_alternative]);
     printf("has_waiting_room: %s\n", yes_no[feedback->has_waiting_room]);
     printf("is_weekend: %s\n", yes_no[feedback->is_weekend]);
@@ -481,6 +419,7 @@ int print_data(feedback_t *feedback) {
     printf("restaurant_type: %s\n", restaurant_type[feedback->restaurant_type]);
     printf("estimated_waiting_time: %s\n", estimated_waiting_time[feedback->estimated_waiting_time]);
     printf("do_wait: %s\n", yes_no[feedback->do_wait]);
+
     return 0;
 }
 
