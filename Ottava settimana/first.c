@@ -23,7 +23,6 @@ dynamic_string_t yes_no[3] = { "?", "no", "yes" },
     restaurant_type[5] = { "?", "italian", "french", "thai", "fast_food" },
     estimated_waiting_time[5] = { "?", "<10", "10-29", "30-60", ">60" };
 
-
 void print_data(data_t *);
 void set_value(int *, char, const dynamic_string_t);
 int generalize(data_t *, data_t *);

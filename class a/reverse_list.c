@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct Node {
     int val;
@@ -15,13 +16,17 @@ node_t* tail_of(node_t *);
 
 int main() {
     node_t *head = NULL;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 2000; i++) {
         add_node(&head, i);
     }
 
-    print_list(head);
+    //print_list(head);
+    float start_time = (float)clock();
     reverse_list(&head);
-    print_list(head);
+    float end_time = ((float)clock() - start_time) / CLOCKS_PER_SEC;
+    printf("Time spent: %f\n", end_time);
+
+    //print_list(head);
 
     free_list(&head);
     system("pause");
