@@ -31,28 +31,29 @@ int print_list(node_t *head) {
 }
 
 int free_list(node_t **head) {
-    node_t *current = *head;
-
     do {
-        node_t *temp = current;
-        current = current->next;
+        node_t *temp = *head;
+        *head = (*head)->next;
         free(temp);
-    } while (current != *head);
+    } while (*head != NULL);
     return 0;
 }
 
 int add_node(node_t **head, int val) {
     node_t *new_node = (node_t *) malloc(sizeof(node_t));
-
+    if (new_node == NULL) {
+        puts("Memoria insufficente...");
+        exit(1);
+    }
     new_node->val = val;
-    new_node->next = NULL;
+    new_node->next = *head;
 
     if (*head == NULL) {
         *head = new_node;
-        new_node->next = *head;
+        (*head)->next = *head;
     } else {
         node_t *current = *head;
-        int tmp =0;
+        int tmp = 0;
         while(current->next != *head) {
             tmp++;
             current = current->next;
