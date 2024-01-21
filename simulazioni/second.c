@@ -28,7 +28,7 @@ typedef struct NODO_ORDINE {
 int bubble_sort(Piatto *, int);
 int leggi_ordini(char *, NodoOrdine **);
 int aggiungi_a_ordini(NodoOrdine **, Ordine *, char *, int);
-void dividi_lista(NodoOrdine *, NodoOrdine **, NodoOrdine **, int *);
+void dividi_lista(NodoOrdine *, NodoOrdine *, NodoOrdine *, int *);
 float calcola_scontrino_cliente(Piatto *, NodoOrdine *, char *);
 
 int main() {
@@ -85,17 +85,17 @@ float calcola_scontrino_cliente(Piatto piatti[NUM_PIATTI], NodoOrdine *lista_ord
 }
 
 // Divide la lista in due liste dove lp contiente tutti gli ordini con indice pari e ld tutti gli ordini con indice dispari
-void dividi_lista(NodoOrdine *lo, NodoOrdine **lp, NodoOrdine **ld, int *i) {
+void dividi_lista(NodoOrdine *lo, NodoOrdine *lp, NodoOrdine *ld, int *i) {
     if (lo != NULL) {
         // Salvo i dati dentro la lista in base all'ordine pari o dispari degli ordini
         if (*i % 2 == 0) {
             aggiungi_a_ordini(lp, lo->ordini_cliente, lo->nome_e_cognome, lo->numero_ordini);
             *i++;
-            dividi_lista(lo->next, &(*lp)->next, ld, i);
+            dividi_lista(lo->next, &lp->next, ld, i);
         } else {
             aggiungi_a_ordini(ld, lo->ordini_cliente, lo->nome_e_cognome, lo->numero_ordini);
             *i++;
-            dividi_lista(lo->next, lp, &(*ld)->next, i);
+            dividi_lista(lo->next, lp, &ld->next, i);
         }
     }
 
