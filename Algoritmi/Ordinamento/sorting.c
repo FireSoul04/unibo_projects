@@ -3,12 +3,13 @@
 #include <time.h>
 #include <math.h>
 
-#define MAX 10000000
 /*#define DEBUG*/
 
 int random_range(int min, int max);
 void print_array(int *a, int l);
 void fill_random(int *a, int l, int min, int max);
+
+void bubble_sort(int *a, int l);
 
 void merge_sort(int *a, int p, int r);
 void merge(int *a, int p, int q, int r);
@@ -20,15 +21,16 @@ int r_partition(int *a, int p, int r);
 void r_quick_sort(int *a, int p, int r);
 
 int main(int argc, char *argv[]) {
-	int *a, *c, i, now, end, length;
+	int *a, *c, i, max, now, end, length;
 	float total_time;
 
-	if (argc != 2) {
-		puts("One argument required");
+	if (argc != 3) {
+		puts("Two argument required");
 		exit(EXIT_FAILURE);
 	}
 
 	length = atoi(argv[1]);
+	max = atoi(argv[2]);
 
 	srand(time(NULL));
 
@@ -40,7 +42,31 @@ int main(int argc, char *argv[]) {
 	}
 
 	puts("Filling array...");
-	fill_random(a, length, 0, MAX);
+	fill_random(a, length, 0, max);
+
+	for (i = 0; i < length; i++) {
+		c[i] = a[i];
+	}
+
+	#ifdef DEBUG
+	print_array(c, length);
+	#endif
+
+	puts("Sorting array...");
+	now = (float)clock();
+	/* Start of time counter */
+
+	bubble_sort(c, length);
+
+	/* End of time counter */
+	end = (float)clock();
+	total_time = (end - now) / (float)CLOCKS_PER_SEC;
+
+	#ifdef DEBUG
+	print_array(c, length);
+	#endif
+	
+	printf("BUBBLE SORT: Time spended for %d data is %f\n", length, total_time);
 
 	for (i = 0; i < length; i++) {
 		c[i] = a[i];
@@ -138,6 +164,19 @@ void fill_random(int *a, int l, int min, int max) {
 	for (i = 0; i < l; i++) {
 		a[i] = random_range(min, max);
 	}
+}
+
+void bubble_sort(int *a, int l) {
+	int i, sorted;
+	do {
+		sorted = 1;
+		for (i = 0; i < l - 1; i++) {
+			if (a[i] > a[i + 1]) {
+				swap(&a[i], &a[i + 1]);
+				sorted = 0;
+			}
+		}
+	} while (!sorted);
 }
 
 void merge_sort(int *a, int p, int r) {
