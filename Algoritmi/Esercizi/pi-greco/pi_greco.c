@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
         alt_point.x = point.x - radius;
         alt_point.y = point.y - radius;
 
-        vector_length = (int)sqrt((alt_point.x * alt_point.x) + (alt_point.y * alt_point.y));
+        vector_length = sqrt((alt_point.x * alt_point.x) + (alt_point.y * alt_point.y));
         if (vector_length < radius) {
             p_inside++;
         }
