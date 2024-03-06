@@ -10,48 +10,45 @@ typedef struct Point2D {
 int random_range(int min, int max);
 
 int main(int argc, char *argv[]) {
-    Point2D point, alt_point;
-    int i, n_points, p_inside, radius, side;
-    float vector_length, pi_test;
+    Point2D point;
+    int i, j, n_points, p_inside, iterations;
+    float radius;
+    double vector_length, pi_test, pi_total, pi_avg;
 
-    if (argc != 3) {
-        printf("Example of executing: %s <number_of_points> <circle_radius>", argv[0]);
+    if (argc != 4) {
+        printf("Example of executing: %s <number_of_points> <circle_radius> <iterations>", argv[0]);
         exit(EXIT_FAILURE);
     }
-
     srand(time(NULL));
 
+    pi_total = 0.0f;
     n_points = atoi(argv[1]);
+    radius = atof(argv[2]);
+    iterations = atoi(argv[3]);
+    for (i = 0; i < iterations; i++) {
+        p_inside = 0;
 
-    radius = atoi(argv[2]);
-    side = radius * 2;
+        for (j = 0; j < n_points; j++) {
+            point.x = random_range(-radius, radius);
+            point.y = random_range(-radius, radius);
 
-    p_inside = 0;
-
-    system("clear");
-
-    for (i = 0; i < n_points; i++) {
-        point.x = random_range(0, side);
-        point.y = random_range(0, side);
-        alt_point.x = point.x - radius;
-        alt_point.y = point.y - radius;
-
-        vector_length = sqrt((alt_point.x * alt_point.x) + (alt_point.y * alt_point.y));
-        if (vector_length < radius) {
-            p_inside++;
+            vector_length = sqrt((point.x * point.x) + (point.y * point.y));
+            if (vector_length < radius) {
+                p_inside++;
+            }
         }
+        pi_test = (p_inside / (float)n_points) * 4.0f;
+        pi_total += pi_test;
     }
+    pi_avg = pi_total / (float)iterations;
 
-
-    pi_test = (p_inside / (float)n_points) * 4;
-    printf("Inside square: %d, inside circle: %d, PI: %f", n_points - p_inside, p_inside, pi_test);
-    getchar();
-    system("clear");
+    printf("Iterations: %d\n", iterations);
+    printf("Circle range: %f, PI: %.15f", radius, pi_avg);
 
     return 0;
 }
 
 int random_range(int min, int max) {
-    int r = rand() % (max - min + 1) + min;
+    int r = min + (rand() / (float)RAND_MAX) * (max - min);
     return r;
 }
