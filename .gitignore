@@ -1,3 +1,11 @@
 *.exe
 *.o
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
 .vscode/
+.vs/
+[Dd]ebug/
+x64/
