@@ -87,12 +87,19 @@ valore ripetuto sia esattamente $t$?
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
+#include <sys/ioctl.h>
 
 /* MAXN è il massimo numero di valori che possono essere presenti nel
    file. Questo parametro si può considerare fissato, ma il programma
    dovrebbe funzionare con qualsiasi valore di MAXN */
-#define MAXN (size_t)1000000
+#define MAXN (size_t)250000
+#define MAX_TELEFONO 100000
 
+void loading_bar(int row, int n, int max);
+void random_generate(const char *fout, int t);
+int random_number(int max);
+int random_range(int min, int max);
 int compare(const void *pa, const void *pb);
 
 int main( int argc, char *argv[] )
@@ -103,17 +110,28 @@ int main( int argc, char *argv[] )
        supporto. */
 
     FILE *fin;
-    int num_tel, i, *arr;
+    int num_tel, i, l, *arr;
+    const char *filename = "telefonX.in";
 
-    if (argc != 2) {
+    srand(time(NULL));
+    system("clear");
+    printf("\033[?25l");
+
+    if (argc == 1) {
+        num_tel = random_number(MAX_TELEFONO);
+        random_generate(filename, num_tel);
+    } else if (argc != 2) {
         fprintf(stderr, "Usage: %s input_file_name\n", argv[0]);
         return EXIT_FAILURE;
+    } else {
+        filename = argv[1];
     }
 
+    l = 0;
     arr = (int *)malloc(MAXN * sizeof(int));
     assert(arr != NULL);
 
-    fin = fopen(argv[1], "r");
+    fin = fopen(filename, "r");
     if (fin == NULL) {
         fprintf(stderr, "Can not open \"%s\"\n", argv[1]);
         return EXIT_FAILURE;
@@ -122,27 +140,92 @@ int main( int argc, char *argv[] )
     i = 0;
     while (1 == fscanf(fin, "%d", &num_tel)) {
         arr[i] = num_tel;
+        i++;
     }
+    l = i;
 
     /* Ordino il vettore di elementi e cerco la prima occorrenza di due elementi consecutivi uguali */
-    qsort(arr, MAXN, sizeof(int), compare); /* Th(n*log(n)) */
-    for (i = 0; i < MAXN - 1 && arr[i] != arr[i + 1]; i++);
-
+    qsort(arr, l, sizeof(int), compare);
+    for (i = 0; i < l - 1 && arr[i] != arr[i + 1]; i++);
     printf("First occurency: %d\n", arr[i]);
+    printf("\033[?25h");
 
     fclose(fin);
     return EXIT_SUCCESS;
+}
+
+void random_generate(const char *filename, int t) {
+    FILE *fout = fopen(filename, "w");
+    int *a, i, j;
+
+    a = (int *)malloc(MAXN * sizeof(int));
+    if (a == NULL) {
+        fprintf(stderr, "Memory error");
+        exit(EXIT_FAILURE);
+    }
+    
+    /* Genera numeri casuali in modo che t sia il primo ad essere ripetuto, 
+    ordino l'array in modo da trovare le occorrenze prendendo direttamente il valore successivo
+    e mischio gli elementi in modo da avere valori in ordine casuale */
+    do {
+        puts("Generating random numbers...");
+        for (i = 0; i < MAXN; i++) {
+            a[i] = random_number(MAX_TELEFONO);
+            for (j = 0; j < MAXN; j++) {
+                while (a[i] == a[j] && a[i] < t) {
+                    a[i] = random_number(MAX_TELEFONO);
+                }
+            }
+            loading_bar(2, i, MAXN);
+        }
+        qsort(a, MAXN, sizeof(int), compare);
+        for (i = 0; i < MAXN - 1 && a[i] != a[i + 1]; i++);
+    } while (a[i] != t);
+    puts("\nNumbers generated, filling file...");
+
+    for (i = 0; i < MAXN; i++) {
+        fprintf(fout, "%d\n", a[i]);
+        loading_bar(4, i, MAXN);
+    }
+    puts("\nFile filled successfully...");
+
+    fclose(fout);
+    free(a);
+}
+
+void loading_bar(int row, int n, int max) {
+    int i, length, perc;
+    struct winsize w;
+
+    ioctl(0, TIOCGWINSZ, &w);
+    length = w.ws_col - 2;
+    perc = (int)(n * length / max);
+
+    printf("\033[%d;0H", row);
+    putchar('[');
+    for (i = 0; i < length; i++) {
+        if (i <= perc) {
+            putchar('#');
+        } else {
+            putchar(' ');
+        }
+    }
+    putchar(']');
+}
+
+/* Genera le cifre e il prefisso, che genero con un numero random 1 o 2 moltiplico per 2 e 
+ottengo o 2 o 4 e aggiungo 1 per ottenere o 3 o 5 per poi sommarlo con le cifre che vanno da 0 a MAX_TELEFONO */
+int random_number(int max) {
+    return random_range(0, max) + (random_range(1, 3) * 2 + 1) * max;
+}
+
+int random_range(int min, int max) {
+    return rand() % (max - min) + min;
 }
 
 int compare(const void *pa, const void *pb) {
     int a, b;
     a = *(int *)pa;
     b = *(int *)pb;
-    if (a > b) {
-        return 1;
-    } else if (a < b) {
-        return -1;
-    } else {
-        return 0;
-    }
+    return a - b;
 }

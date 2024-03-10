@@ -166,113 +166,138 @@ consentire all'utente di giocare una partita.
 
 #define SIZE 9
 
-void stampa(int *map);
+#define NO_END 0
+#define LOSE -1
+#define WIN 1
+
+int minimum_moves_to_win(int *map, int **parse_maps);
+
+int parse_win(int *map);
+void parse_map(int *map, int *zone);
+void print_map(int *map);
 
 int main( void )
 {
   /* Mappa 3x3 di stati 0/1 dove 0 sono buchi neri e 1 stelle 
   inizializzato con tutti buchi neri tranne la cella centrale */
-  int num = 0, win = 0, cont = 0, i, map[SIZE];
-  for (i = 0; i < SIZE; i++) {
-    map[i] = 0;
-  }
-  map[4] = 1;
+  int num = 0, win = 0;
+  int map[SIZE] = {
+    0, 0, 0,
+    0, 1, 0,
+    0, 0, 0
+  };
+  int parse_maps[9][SIZE] = { {
+      1, 1, 0,
+      1, 1, 0,
+      0, 0, 0
+    }, {
+      1, 1, 1,
+      0, 0, 0,
+      0, 0, 0
+    }, {
+      0, 1, 1,
+      0, 1, 1,
+      0, 0, 0
+    }, {
+      1, 0, 0,
+      1, 0, 0,
+      1, 0, 0
+    }, {
+      0, 1, 0,
+      1, 1, 1,
+      0, 1, 0
+    }, {
+      0, 0, 1,
+      0, 0, 1,
+      0, 0, 1
+    }, {
+      0, 0, 0,
+      1, 1, 0,
+      1, 1, 0
+    }, {
+      0, 0, 0,
+      0, 0, 0,
+      1, 1, 1
+    }, {
+      0, 0, 0,
+      0, 1, 1,
+      0, 1, 1
+    }
+  };
+
+  printf("\033[2J");
 
   /* Main loop, esce quando l'utente scrive un numero negativo */
   while (num >= 0 && win == 0) {
-    stampa(map);
+    print_map(map);
     printf("Dove si vuole sparare? (se negativo chiude il programma): ");
     scanf("%d", &num);
 
     /* Controllo se il numero della posizione è valida e
     se in quella posizione è presente una stella */
     if (num > SIZE) {
-      printf("Posizione non presente nella mappa\n");
+      puts("Posizione non presente nella mappa");
     } else if (map[num] == 0) {
-      printf("Non e' presente una stella nella posizione scelta\n");
+      puts("Non e' presente una stella nella posizione scelta");
     } else {
-      /* Cambio lo stato in base alla posizione sparata e rendo la stella scelta un buco nero
-      gestisco le direzioni sommando la posizione a destra con +1, sinistra con -1, sopra -3 e sotto +3 */
-      map[num] = !map[num];
-      switch (num) {
-        case 4:
-          map[num - 3] = !map[num - 3];
-          map[num - 1] = !map[num - 1];
-          map[num + 1] = !map[num + 1];
-          map[num + 3] = !map[num + 3]; 
-          break;
-        case 1:
-        case 7:
-          map[num - 1] = !map[num - 1];
-          map[num + 1] = !map[num + 1];
-          break;
-        case 3:
-        case 5:
-          map[num - 3] = !map[num - 3];
-          map[num + 3] = !map[num + 3];
-          break;
-        case 0:
-          map[num + 1] = !map[num + 1];
-          map[num + 3] = !map[num + 3];
-          map[num + 4] = !map[num + 4];
-          break;
-        case 2:
-          map[num - 1] = !map[num - 1];
-          map[num + 2] = !map[num + 2];
-          map[num + 3] = !map[num + 3];
-          break;
-        case 6:
-          map[num - 3] = !map[num - 3];
-          map[num - 2] = !map[num - 2];
-          map[num + 1] = !map[num + 1];
-          break;
-        case 8:
-          map[num - 3] = !map[num - 3];
-          map[num - 4] = !map[num - 4];
-          map[num - 1] = !map[num - 1];
-          break;   
-      }
+      parse_map(map, parse_maps[num]);
 
       /* Controllo se sono tutti buchi neri contando quanti ne sono presenti, se si win sarà -1 */
-      cont = 0;
-      for (i = 0; i < SIZE; i++) {
-        if (map[i] == 0) {
-          cont++;
-        }
-      }
-      if (cont == SIZE) {
-        win = -1;
-      }
-
-      /* Controllo se sono tutte stelle tranne il centro, se si win sarà 1 */
-      cont = 0;
-      if (map[4] == 0) {
-        for (i = 0; i < SIZE; i++) {
-          if (map[i] == 1) {
-            cont++;
-          }
-        }
-        if (cont == SIZE - 1) {
-          win = 1;
-        }
-      }
+      win = parse_win(map);
     }
   }
-  stampa(map);
+  print_map(map);
 
-  if (win == 1) {
-    printf("Hai vinto!\n");
-  } else if (win == -1) {
-    printf("Hai perso...\n");
+  if (win == WIN) {
+    puts("Hai vinto!");
+  } else if (win == LOSE) {
+    puts("Hai perso...");
   }
-  system("pause");
   return EXIT_SUCCESS;
 }
 
-/* Stampa la mappa dove le stelle sono la posizione e i buchi neri dei punti */
-void stampa(int *map) {
+int parse_win(int *map) {
+  int lose_con[SIZE] = {
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0
+  };
+  int win_con[SIZE] = {
+    1, 1, 1,
+    1, 0, 1,
+    1, 1, 1
+  };
+  int i, cont_w = 0, cont_l = 0;
+  for (i = 0; i < SIZE; i++) {
+    if (map[i] == lose_con[i]) {
+      cont_l++;
+    }
+    if (map[i] == win_con[i]) {
+      cont_w++;
+    }
+  }
+
+  if (cont_l == SIZE) {
+    return LOSE;
+  } else if (cont_w == SIZE) {
+    return WIN;
+  } else {
+    return NO_END;
+  }
+}
+
+void parse_map(int *map, int *zone) {
+  int i;
+  for (i = 0; i < SIZE; i++) {
+    map[i] ^= zone[i];
+  }
+}
+
+/* stampa la mappa dove le stelle sono la posizione e i buchi neri dei punti */
+void print_map(int *map) {
   int i;
   char ch;
+  printf("\033[0;0H");
   for (i = 0; i < SIZE; i++) {
     if (i % 3 == 0 && i != 0) {
       puts("");
@@ -285,4 +310,13 @@ void stampa(int *map) {
     printf(" %c ", ch);
   }
   printf("\n");
+}
+
+int minimum_moves_to_win(int *map, int **parse_maps) {
+  int win = 0, moves = 0;
+  while (win == 0) {
+    win = parse_win(map);
+  }
+
+  return moves;
 }
