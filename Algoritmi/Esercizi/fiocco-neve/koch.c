@@ -186,7 +186,17 @@ costituiti da tre curve di Koch di ordine $n$ e lunghezza $x$ (Figura
 void koch(double x, int n) {
   if (n > 0) {
     koch(x / 3, n - 1);
-    
+    turn(-60);
+    draw(x);
+    koch(x / 3, n - 1);
+    turn(120);
+    draw(x);
+    koch(x / 3, n - 1);
+    turn(-60);
+    draw(x);
+    koch(x / 3, n - 1);
+  } else if (n == 0) {
+    draw(x);
   }
 }
 
