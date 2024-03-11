@@ -187,28 +187,35 @@ void koch(double x, int n) {
   if (n > 0) {
     koch(x / 3, n - 1);
     turn(-60);
-    draw(x);
     koch(x / 3, n - 1);
     turn(120);
-    draw(x);
     koch(x / 3, n - 1);
     turn(-60);
-    draw(x);
     koch(x / 3, n - 1);
   } else if (n == 0) {
     draw(x);
   }
 }
 
-
-int main( void ) {
+int main(int argc, char *argv[]) {
     /* L'esempio seguente disegna un quadrato, e serve per prendere
        familiarità con la libreria `libpsgraph`.  Modificare il codice
        per disegnare la curva di Koch, completando la funzione koch(x,
        n) definita sopra e invocandola opportunamente (si suggerisce
        di usare n=4). */
-    start("square.ps");
-    koch(10, 4);
+    int n, i;
+
+    if (argc != 2) {
+      fprintf(stderr, "Use %s <times>\n", argv[0]);
+      return EXIT_FAILURE;
+    }
+    n = atoi(argv[1]);
+
+    start("koch.ps");
+    for (i = 0; i < 3; i++) {
+      koch(50, n);
+      turn(120);
+    }
     end();
     return EXIT_SUCCESS;
 }

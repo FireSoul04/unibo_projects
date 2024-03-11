@@ -9,7 +9,11 @@ int random_range(int min, int max);
 void print_array(int *a, int l);
 void fill_random(int *a, int l, int min, int max);
 
-void bubble_sort(int *a, int l);
+int left(int i);
+int right(int i);
+void build_max_heap(int *a, int length);
+void max_heapify(int *a, int heap_size, int i);
+void heap_sort(int *a, int length);
 
 void merge_sort(int *a, int p, int r, int *buffer);
 void merge(int *a, int p, int q, int r, int *buffer);
@@ -50,15 +54,11 @@ int main(int argc, char *argv[]) {
 		c[i] = a[i];
 	}
 
-	#ifdef DEBUG
-	print_array(c, length);
-	#endif
-
 	puts("Sorting array...");
 	start = (float)clock();
 	/* Start of time counter */
 
-	bubble_sort(c, length);
+	heap_sort(c, length);
 
 	/* End of time counter */
 	end = (float)clock();
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 	print_array(c, length);
 	#endif
 	
-	printf("BUBBLE SORT: Time spended for %d data is %f\n", length, total_time);
+	printf("HEAP SORT: Time spended for %d data is %f\n", length, total_time);
 
 	for (i = 0; i < length; i++) {
 		c[i] = a[i];
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 	start = (float)clock();
 	/* Start of time counter */
 
-	quick_sort(a, 0, length - 1);
+	quick_sort(c, 0, length - 1);
 
 	/* End of time counter */
 	end = (float)clock();
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 	start = (float)clock();
 	/* Start of time counter */
 
-	r_quick_sort(a, 0, length - 1);
+	r_quick_sort(c, 0, length - 1);
 
 	/* End of time counter */
 	end = (float)clock();
@@ -157,17 +157,44 @@ void fill_random(int *a, int l, int min, int max) {
 	}
 }
 
-void bubble_sort(int *a, int l) {
-	int i, sorted;
-	do {
-		sorted = 1;
-		for (i = 0; i < l - 1; i++) {
-			if (a[i] > a[i + 1]) {
-				swap(&a[i], &a[i + 1]);
-				sorted = 0;
-			}
-		}
-	} while (!sorted);
+int left(int i) {
+	return 2 * i + 1;
+}
+
+int right(int i) {
+	return 2 * (i + 1);
+}
+
+void build_max_heap(int *a, int length) {
+	int i;
+	for (i = (int)(length / 2) - 1; i >= 0; i--) {
+		max_heapify(a, length, i);
+	}
+}
+
+void max_heapify(int *a, int heap_size, int i) {
+	int l, r, largest = i;
+	l = left(i);
+	r = right(i);
+	if (l < heap_size && a[l] > a[largest]) {
+		largest = l;
+	}
+	if (r < heap_size && a[r] > a[largest]) {
+		largest = r;
+	}
+	if (largest != i) {
+		swap(&a[i], &a[largest]);
+		max_heapify(a, heap_size, largest);
+	}
+}
+
+void heap_sort(int *a, int length) {
+	int i;
+	build_max_heap(a, length);
+	for (i = length - 1; i >= 0; i--) {
+		swap(&a[0], &a[i]);
+		max_heapify(a, i, 0);
+	}
 }
 
 void merge_sort(int *a, int p, int r, int *buffer) {
