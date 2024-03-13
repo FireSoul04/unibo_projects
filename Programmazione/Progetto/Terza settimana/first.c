@@ -202,7 +202,7 @@ int score_modifier(int continent, int choice_time) {
  * @param max Massimo numero che può essere generato
  * @returns Il valore casuale scelto
 */
-int random(int min, int max) {
+int random_range(int min, int max) {
     srand(clock());
     return min + rand() % (max - min) + 1;
 }
@@ -301,8 +301,8 @@ bool game() {
     CLEAR;
 
     // Ottengo le coordinate casuali e le stampo
-    x = random(0, MAP_LENGTH - 1);
-    y = random(0, MAP_HEIGHT - 1);
+    x = random_range(0, MAP_LENGTH - 1);
+    y = random_range(0, MAP_HEIGHT - 1);
     // Stampo ogni coordinata + 1 perché gli array partono da 0
     printf("Coordinate (%d, %d)\n", x + 1, y + 1);
 

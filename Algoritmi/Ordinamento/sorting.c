@@ -9,6 +9,9 @@ int random_range(int min, int max);
 void print_array(int *a, int l);
 void fill_random(int *a, int l, int min, int max);
 
+void radix_sort(int *a, int l, int d);
+void counting_sort(int *a, int *b, int l, int k);
+
 int left(int i);
 int right(int i);
 void build_max_heap(int *a, int length);
@@ -130,6 +133,26 @@ int main(int argc, char *argv[]) {
 	
 	printf("RAND QUICK SORT: Time spended for %d data is %f\n", length, total_time);
 
+	for (i = 0; i < length; i++) {
+		c[i] = a[i];
+	}
+
+	puts("Sorting array...");
+	start = (float)clock();
+	/* Start of time counter */
+
+	radix_sort(c, length, log10(max));	
+
+	/* End of time counter */
+	end = (float)clock();
+	total_time = (end - start) / (float)CLOCKS_PER_SEC;
+
+	#ifdef DEBUG
+	print_array(c, length);
+	#endif
+	
+	printf("RAND QUICK SORT: Time spended for %d data is %f\n", length, total_time);
+
 	free(a);
 	free(c);
     free(buffer);
@@ -154,6 +177,44 @@ void fill_random(int *a, int l, int min, int max) {
 	int i;
 	for (i = 0; i < l; i++) {
 		a[i] = random_range(min, max);
+	}
+}
+
+void radix_sort(int *a, int l, int d) {
+	int *b, *digits, i;
+	b = (int *)malloc(d * sizeof(int));
+	digits = (int *)malloc(d * sizeof(int));
+	if (b == NULL || digits == NULL) {
+		puts("Memory error");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < d; i++) {
+		digits[i] = (a[i] * pow(10, -i)) * pow(10, i) - a[i];
+		counting_sort(digits, b, l, i);
+	}
+}
+
+void counting_sort(int *a, int *b, int l, int k) {
+	int *c, i, j;
+	c = (int *)malloc(k * sizeof(int));
+	if (c == NULL) {
+		puts("Memory error");
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; i < k; i++) {
+		c[i] = 0;
+	}
+	for (j = 0; j < l; j++) {
+		c[a[j]]++;
+	}
+	for (i = 0; i < k; i++) {
+		c[i] += c[i - 1];
+	}
+	for (j = l; j >= 0; j--) {
+		b[c[a[j]]] = a[j];
+		c[a[j]]--;
 	}
 }
 

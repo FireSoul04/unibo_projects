@@ -115,7 +115,7 @@
 #define MAP_SIZE ((ROW_SEPARATOR_SIZE) * (Q_HEIGHT - MAP_HEIGHT + 3) + (ROW_SIZE) * (MAP_HEIGHT))
 
 // Funzione che restituisce un valore casuale da min a max
-int random(int min, int max) {
+int random_range(int min, int max) {
     return min + rand() % (max - min);
 }
 
@@ -284,12 +284,12 @@ double q_function(double q_table[Q_HEIGHT][DIRECTIONS], int map[MAP_HEIGHT][MAP_
 int get_action(double q_table[Q_HEIGHT][DIRECTIONS], int directions[DIRECTIONS][2], int state, double eps, int x, int y, int next_x, int next_y) {
     int action = 0;
     // Ottengo un numero da 1 a 100 per sfruttare il metodo epsilon greedy
-    int random_value = random(1, 100);
+    int random_range_value = random_range(1, 100);
     // Pongo il prossimo valore della QTable come un numero più piccolo di tutti i valori possibili della QTable in modo da entrare sempre nella prima iterazione del ciclo
     double q_value = -1000;
 
     // Controllo la direzione che restituisce il premio più grande
-    if (random_value <= (100 - eps)) {
+    if (random_range_value <= (100 - eps)) {
         for (int i = 0; i < DIRECTIONS; i++) {
             next_x = x + directions[i][0];
             next_y = y + directions[i][1];
@@ -304,7 +304,7 @@ int get_action(double q_table[Q_HEIGHT][DIRECTIONS], int directions[DIRECTIONS][
     } else {
         // Azione casuale, controllo che le coordinate non vadano fuori dalla mappa
         do {
-            action = random(0, 4);
+            action = random_range(0, 4);
             next_x = x + directions[action][0];
             next_y = y + directions[action][1];
         } while (next_x < 0 || next_x > MAP_LENGTH - 1
