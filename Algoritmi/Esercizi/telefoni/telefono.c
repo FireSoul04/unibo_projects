@@ -98,9 +98,11 @@ valore ripetuto sia esattamente $t$?
 
 void loading_bar(int row, int n, int max);
 void random_generate(const char *fout, int t);
+void random_shuffle(int *a, int l);
 int random_number(int max);
 int random_range(int min, int max);
 int compare(const void *pa, const void *pb);
+void swap(int *a, int *b);
 
 int main( int argc, char *argv[] )
 {
@@ -154,6 +156,14 @@ int main( int argc, char *argv[] )
     return EXIT_SUCCESS;
 }
 
+void random_shuffle(int *a, int l) {
+    int i, r;
+    for (i = 0; i < l; i++) {
+        r = random_range(0, l);
+        swap(&a[i], &a[r]);
+    }
+}
+
 void random_generate(const char *filename, int t) {
     FILE *fout = fopen(filename, "w");
     int *a, i, j;
@@ -181,6 +191,7 @@ void random_generate(const char *filename, int t) {
         qsort(a, MAXN, sizeof(int), compare);
         for (i = 0; i < MAXN - 1 && a[i] != a[i + 1]; i++);
     } while (a[i] != t);
+    random_shuffle(a, MAXN);
     puts("\nNumbers generated, filling file...");
 
     for (i = 0; i < MAXN; i++) {
@@ -207,7 +218,7 @@ void loading_bar(int row, int n, int max) {
         if (i <= perc) {
             putchar('#');
         } else {
-            putchar(' ');
+            putchar('-');
         }
     }
     putchar(']');
@@ -228,4 +239,11 @@ int compare(const void *pa, const void *pb) {
     a = *(int *)pa;
     b = *(int *)pb;
     return a - b;
+}
+
+void swap(int *a, int *b) {
+    int tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
 }
