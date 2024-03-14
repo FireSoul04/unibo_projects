@@ -9,8 +9,8 @@ int random_range(int min, int max);
 void print_array(int *a, int l);
 void fill_random(int *a, int l, int min, int max);
 
-void radix_sort(int *a, int l, int d);
-void counting_sort(int *a, int *b, int l, int k);
+void radix_sort(int *a, int l, int max);
+void counting_sort(int *a, int l, int k);
 
 int left(int i);
 int right(int i);
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 	start = (float)clock();
 	/* Start of time counter */
 
-	radix_sort(c, length, log10(max));	
+	radix_sort(c, length, max);	
 
 	/* End of time counter */
 	end = (float)clock();
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 	print_array(c, length);
 	#endif
 	
-	printf("RAND QUICK SORT: Time spended for %d data is %f\n", length, total_time);
+	printf("RADIX SORT: Time spended for %d data is %f\n", length, total_time);
 
 	free(a);
 	free(c);
@@ -180,42 +180,35 @@ void fill_random(int *a, int l, int min, int max) {
 	}
 }
 
-void radix_sort(int *a, int l, int d) {
-	int *b, *digits, i;
-	b = (int *)malloc(d * sizeof(int));
-	digits = (int *)malloc(d * sizeof(int));
-	if (b == NULL || digits == NULL) {
-		puts("Memory error");
-		exit(EXIT_FAILURE);
-	}
-
-	for (i = 0; i < d; i++) {
-		digits[i] = (a[i] * pow(10, -i)) * pow(10, i) - a[i];
-		counting_sort(digits, b, l, i);
-	}
+void radix_sort(int *a, int l, int max) {
+	int i;
+    for (i = 1; max / i > 0; i *= 10) {
+        counting_sort(a, l, i);
+    }
 }
 
-void counting_sort(int *a, int *b, int l, int k) {
-	int *c, i, j;
-	c = (int *)malloc(k * sizeof(int));
-	if (c == NULL) {
+void counting_sort(int *a, int l, int k) {
+	int *b, *c, i;
+    b = (int *)malloc(l * sizeof(int));
+	c = (int *)calloc(10, sizeof(int));
+	if (b == NULL || c == NULL) {
 		puts("Memory error");
 		exit(EXIT_FAILURE);
 	}
 
-	for (i = 0; i < k; i++) {
-		c[i] = 0;
+	for (i = 0; i < l; i++) {
+		c[(a[i] / k) % 10]++;
 	}
-	for (j = 0; j < l; j++) {
-		c[a[j]]++;
-	}
-	for (i = 0; i < k; i++) {
+	for (i = 1; i < 10; i++) {
 		c[i] += c[i - 1];
 	}
-	for (j = l; j >= 0; j--) {
-		b[c[a[j]]] = a[j];
-		c[a[j]]--;
+	for (i = l - 1; i >= 0; i--) {
+		b[c[(a[i] / k) % 10] - 1] = a[i];
+		c[(a[i] / k) % 10]--;
 	}
+    for (i = 0; i < l; i++) {
+        a[i] = b[i];
+    }
 }
 
 int left(int i) {
