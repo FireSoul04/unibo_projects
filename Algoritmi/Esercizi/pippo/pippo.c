@@ -65,6 +65,12 @@ void fill_random(int *a, int l, int min, int max) {
 	}
 }
 
+/* Funzione ricorsiva che cerca in due array ordinati se due elementi
+ * di ognuno dei due array sommati possono risultare k.
+ * Prende in input due array ordinati v e w, lunghezza di v, 
+ * i indice di v e j indice di w e k risultato della somma.
+ * Ritorna 1 se trova due numeri di v e w che sommati risultano k, altrimenti 0
+ */
 int pippo(int *v, int *w, int vl, int i, int j, int k) {
     int ret;
     if (i >= vl || j < 0) {
