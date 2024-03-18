@@ -278,6 +278,7 @@ attenzione, ma non è particolarmente problematico.
 - [minheap3.in](minheap3.in)
 
  ***/
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -400,7 +401,24 @@ static int rchild(const MinHeap *h, int i) {
 /* Funzione di supporto: restituisce l'indice del figlio di `i` con
    priorità minima. Se `i` non ha figli, restituisce -1 */
 static int min_child(const MinHeap *h, int i) {
-    return -1; /* [TODO] */
+    int l, r, leatest;
+
+    assert(valid(h, i));
+
+    l = lchild(h, i);
+    r = rchild(h, i);
+    if (l >= h->n) { /* Se i non ha figli */
+        return -1;
+    } else if (r >= h->n) {
+        return l;
+    }
+    
+    leatest = l;
+    if (h->heap[r].prio < h->heap[l].prio) {
+        leatest = r;
+    }
+
+    return leatest;
 }
 
 /* Funzione di supporto: scambia l'elemento in posizione `i` con il
@@ -423,6 +441,7 @@ static void move_up(MinHeap *h, int i) {
    la posizione corretta. */
 static void move_down(MinHeap *h, int i) {
     /* [TODO] */
+    
 }
 
 /* Restituisce true (nonzero) se lo heap è vuoto */
