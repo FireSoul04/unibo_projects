@@ -42,6 +42,8 @@ typedef struct {
    Precondizione: size > 0 */
 MinHeap *minheap_create(int size);
 
+void init_pos(MinHeap *h, int size);
+
 /* Svuota lo heap */
 void minheap_clear(MinHeap *h);
 
