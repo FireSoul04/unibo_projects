@@ -274,6 +274,9 @@ void swap(int *v, int i, int j)
 int partition(int *v, int start, int end)
 {
     /* [TODO] */
+    int k;
+    
+
     return 0; /* Sostituire con il valore corretto */
 }
 
@@ -281,7 +284,12 @@ int partition(int *v, int start, int end)
    ricorsivamente l'algoritmo Quicksort. */
 void quicksort(int *v, int start, int end)
 {
-    /* [TODO] */
+    int q;
+    if (end < start) {
+        q = partition(v, start, end);
+        quicksort(v, start, q - 1);
+        quicksort(v, q + 1, end);
+    }
 }
 
 /* Ordina l'array `v[]` di lunghezza `n` usando l'algoritmo
