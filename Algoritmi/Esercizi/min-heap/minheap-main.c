@@ -2,7 +2,7 @@
  *
  * minheap-main.c -- Demo per Min-Heap binario
  *
- * Copyright (C) 2021, 2022 Moreno Marzolla
+ * Copyright (C) 2021, 2022, 2024 Moreno Marzolla
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,10 @@
 #include <string.h>
 #include "minheap.h"
 
-int main( int argc, char *argv[] ) {
+int main( int argc, char *argv[] )
+{
     char op;
-    int n, val;
+    int n, key;
     double prio;
     MinHeap *h;
     FILE *filein = stdin;
@@ -48,31 +49,31 @@ int main( int argc, char *argv[] ) {
         fprintf(stderr, "Missing size\n");
         return EXIT_FAILURE;
     }
-    printf("CREATE %d\n", n);
+    printf("minheap_create(%d)\n", n);
     h = minheap_create(n);
 
     while (1 == fscanf(filein, " %c", &op)) {
         switch (op) {
         case '+': /* insert */
-            fscanf(filein, "%d %lf", &val, &prio);
-            printf("INSERT %d %f\n", val, prio);
-            minheap_insert(h, val, prio);
+            fscanf(filein, "%d %lf", &key, &prio);
+            printf("minheap_insert(h, %d, %f)\n", key, prio);
+            minheap_insert(h, key, prio);
             break;
         case '-': /* delete min */
-            printf("DELETE_MIN\n");
-            minheap_delete_min(h);
+            key = minheap_delete_min(h);
+            printf("minheap_delete_min(h) = %d\n", key);
             break;
         case '?': /* get min */
-            val = minheap_min(h);
-            printf("MIN = %d\n", val);
+            key = minheap_min(h);
+            printf("minheap_min(h) = %d\n", key);
             break;
         case 'c': /* change prio */
-            fscanf(filein, "%d %lf", &val, &prio);
-            printf("CHANGE_PRIO %d %f\n", val, prio);
-            minheap_change_prio(h, val, prio);
+            fscanf(filein, "%d %lf", &key, &prio);
+            printf("minheap_change_prio(h, %d, %f)\n", key, prio);
+            minheap_change_prio(h, key, prio);
             break;
         case 's': /* get n of elements */
-            printf("N = %d\n", minheap_get_n(h));
+            printf("minheap_get_n(h) = %d\n", minheap_get_n(h));
             break;
         case 'p': /* print */
             minheap_print(h);

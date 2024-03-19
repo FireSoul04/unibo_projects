@@ -414,43 +414,46 @@ void generate_same(int *v, int l, int min, int max) {
     }
 }
 
-#define MAX 100000
-#define MAX_RAND 1000
-
-int main( void ) {
-    int *v1, *v2, *v3, *v4, *v5;
+int main(int argc, char *argv[]) {
+    int max, max_rand, *v1, *v2, *v3, *v4, *v5;
+    if (argc != 3) {
+        fprintf(stderr, "Usage %s <n_elems> <max_random_num>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    max = atoi(argv[1]);
+    max_rand = atoi(argv[2]);
 
     srand(time(NULL));
-    v1 = (int *)malloc(MAX * sizeof(int));
-    v2 = (int *)malloc(MAX * sizeof(int));
-    v3 = (int *)malloc(MAX * sizeof(int));
-    v4 = (int *)malloc(MAX * sizeof(int));
-    v5 = (int *)malloc(MAX * sizeof(int));
+    v1 = (int *)malloc(max * sizeof(int));
+    v2 = (int *)malloc(max * sizeof(int));
+    v3 = (int *)malloc(max * sizeof(int));
+    v4 = (int *)malloc(max * sizeof(int));
+    v5 = (int *)malloc(max * sizeof(int));
 
     /* Array già ordinato */
-    generate_random(v1, MAX, 0, MAX_RAND);
-    qsort(v1, MAX, sizeof(int), compare);
+    generate_random(v1, max, 0, max_rand);
+    qsort(v1, max, sizeof(int), compare);
 
     /* Array quasi ordinato */
-    generate_random(v2, MAX, 0, MAX_RAND);
-    qsort(v2, MAX, sizeof(int), compare);
-    random_shuffle(v2, MAX);
+    generate_random(v2, max, 0, max_rand);
+    qsort(v2, max, sizeof(int), compare);
+    random_shuffle(v2, max);
 
     /* Array ordinato descrescente */
-    generate_random(v3, MAX, 0, MAX_RAND);
-    reverse_sort(v3, MAX);
+    generate_random(v3, max, 0, max_rand);
+    reverse_sort(v3, max);
 
     /* Array casuale */
-    generate_random(v4, MAX, 0, MAX_RAND);
+    generate_random(v4, max, 0, max_rand);
 
     /* Array con lo stesso elemento */
-    generate_same(v5, MAX, 0, MAX_RAND);
+    generate_same(v5, max, 0, max_rand);
 
-    test(v1, MAX);
-    test(v2, MAX);
-    test(v3, MAX);
-    test(v4, MAX);
-    test(v5, MAX);
+    test(v1, max);
+    test(v2, max);
+    test(v3, max);
+    test(v4, max);
+    test(v5, max);
 
     return EXIT_SUCCESS;
 }

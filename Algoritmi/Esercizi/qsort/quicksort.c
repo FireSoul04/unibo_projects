@@ -273,11 +273,18 @@ void swap(int *v, int i, int j)
 */
 int partition(int *v, int start, int end)
 {
-    /* [TODO] */
-    int k;
-    
+    int x, i, j;
+    x = v[end];
+    i = start - 1;
+    for (j = start; j < end; j++) {
+        if (v[j] <= x) {
+            i++;
+            swap(v, i, j);
+        }
+    }
+    swap(v, i + 1, end);
 
-    return 0; /* Sostituire con il valore corretto */
+    return i + 1;
 }
 
 /* Ordina il sottovettore `v[start..end]` (estremi inclusi) invocando
@@ -285,7 +292,7 @@ int partition(int *v, int start, int end)
 void quicksort(int *v, int start, int end)
 {
     int q;
-    if (end < start) {
+    if (start < end) {
         q = partition(v, start, end);
         quicksort(v, start, q - 1);
         quicksort(v, q + 1, end);
@@ -406,25 +413,73 @@ int test(int *v, int n)
     return result;
 }
 
-/* ATTENZIONE: questa macro produce il valore corretto SOLO se v[] è
-   un array dichiarato sullo stack (quindi NON con malloc()). La
-   macro DEVE essere chiamata all'interno di un blocco in cui è stato
-   dichiarato v[] */
-#define ARRAY_LEN(v) (sizeof(v)/sizeof(v[0]))
+/* Funzione per comparare due dati in ordine decrescente */
+int reverse_compare(const void *a, const void *b) {
+    return compare(b, a);
+}
 
-int main( void )
+/* Ordina un array in ordine decrescente */
+void reverse_sort(int *v, int l) {
+    qsort(v, l, sizeof(int), reverse_compare);
+}
+
+/* Genera valori casuali nell'array */
+void generate_random(int *v, int l, int min, int max) {
+    int i;
+    for (i = 0; i < l; i++) {
+        v[i] = randab(min, max);
+    }
+}
+
+/* Genera un valore casuale e lo riempie con quel valore per tutto l'array */
+void generate_same(int *v, int l, int min, int max) {
+    int i, r = randab(min, max);
+    for (i = 0; i < l; i++) {
+        v[i] = r;
+    }
+}
+
+int main(int argc, char *argv[])
 {
-    int v1[] = {0, 8, 1, 7, 2, 6, 3, 5, 4};
-    int v2[] = {0, 1, 0, 6, 10, 10, 0, 0, 1, 2, 5, 10, 9, 6, 2, 3, 3, 1, 7};
-    int v3[] = {-1, -3, -2};
-    int v4[] = {2, 2, 2};
-    int v5[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+    int max, max_rand, *v1, *v2, *v3, *v4, *v5;
+    if (argc != 3) {
+        fprintf(stderr, "Usage %s <n_elems> <max_random_num>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    max = atoi(argv[1]);
+    max_rand = atoi(argv[2]);
 
-    test(v1, ARRAY_LEN(v1));
-    test(v2, ARRAY_LEN(v2));
-    test(v3, ARRAY_LEN(v3));
-    test(v4, ARRAY_LEN(v4));
-    test(v5, ARRAY_LEN(v5));
+    srand(time(NULL));
+    v1 = (int *)malloc(max * sizeof(int));
+    v2 = (int *)malloc(max * sizeof(int));
+    v3 = (int *)malloc(max * sizeof(int));
+    v4 = (int *)malloc(max * sizeof(int));
+    v5 = (int *)malloc(max * sizeof(int));
+
+    /* Array già ordinato */
+    generate_random(v1, max, 0, max_rand);
+    qsort(v1, max, sizeof(int), compare);
+
+    /* Array quasi ordinato */
+    generate_random(v2, max, 0, max_rand);
+    qsort(v2, max, sizeof(int), compare);
+    random_shuffle(v2, max);
+
+    /* Array ordinato descrescente */
+    generate_random(v3, max, 0, max_rand);
+    reverse_sort(v3, max);
+
+    /* Array casuale */
+    generate_random(v4, max, 0, max_rand);
+
+    /* Array con lo stesso elemento */
+    generate_same(v5, max, 0, max_rand);
+
+    test(v1, max);
+    test(v2, max);
+    test(v3, max);
+    test(v4, max);
+    test(v5, max);
 
     return EXIT_SUCCESS;
 }
