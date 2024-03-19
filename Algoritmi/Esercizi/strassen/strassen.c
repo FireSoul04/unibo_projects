@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define N 2
+#define MAX 500
 
 int randab(int a, int b);
 void generate_random(int a[N][N], int n, int min, int max);
 void clear_mat(int a[N][N], int n);
-void print_mat(int a[N][N], int n);
+void print_mat(int a[N][N], int n, int max);
 void matrix_mul(int a[N][N], int b[N][N], int out[N][N], int n);
 void matrix_add(int a[N][N], int b[N][N], int out[N][N], int n);
 void matrix_sub(int a[N][N], int b[N][N], int out[N][N], int n);
@@ -18,10 +20,10 @@ int main(void) {
     float elapsed;
     int a[N][N], b[N][N], c[N][N];
 
-    generate_random(a, N, 0, 50);
-    print_mat(a, N);
-    generate_random(b, N, 0, 50);
-    print_mat(b, N);
+    generate_random(a, N, 0, MAX);
+    print_mat(a, N, log10(MAX));
+    generate_random(b, N, 0, MAX);
+    print_mat(b, N, log10(MAX));
 
     now = clock();
     matrix_mul(a, b, c, N);
@@ -34,6 +36,8 @@ int main(void) {
     elapsed = (clock() - now) / (float)CLOCKS_PER_SEC;
 
     printf("Time elapsed strassen: %f\n", elapsed);
+
+    return 0;
 }
 
 /* Restituisce un valore casuale compreso tra a e b (estremi inclusi) */
@@ -51,11 +55,14 @@ void generate_random(int a[N][N], int n, int min, int max) {
     }
 }
 
-void print_mat(int a[N][N], int n) {
+void print_mat(int a[N][N], int n, int digits) {
     int i, j, k;
     for (i = 0; i < n; i++) {
         printf("[ ");
         for (j = 0; j < n; j++) {
+            for (k = 0; k < digits - log10(a[i][j]); k++) {
+                putchar(' ');
+            }
             printf("%d ", a[i][j]);
         }
         puts("]");
