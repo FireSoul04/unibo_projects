@@ -136,5 +136,5 @@ int selection_sort(int *a, int l, int i) {
 
 int quick_selection(int *a, int l, int i) {
 
-    return ;
+    return 0;
 }
