@@ -288,12 +288,9 @@ static void free_node(HashNode *n)
 
 int search_key(HashNode *list, HashNode **node, const char *key) {
     int found = 0;
-    HashNode *temp;
-    for (temp = list; temp != NULL; temp = temp->next) {
-        if (keys_equal(temp->key, key)) {
-            found = 1;
-            break;
-        }
+    HashNode *temp = list;
+    while (temp != NULL && !(found = keys_equal(temp->key, key))) {
+        temp = temp->next;
     }
     if (node != NULL) {
         *node = temp;

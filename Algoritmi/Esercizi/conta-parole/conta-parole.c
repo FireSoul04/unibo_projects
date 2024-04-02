@@ -263,9 +263,9 @@ int main( int argc, char *argv[] )
     while (read_word(filein, w)) {
         ht_insert(h, w, 0);
         /*printf("%s\n", w);*/
+        count++;
     }
-    count = ht_count(h);
-    printf("Number of words: %d\n", count);
+    printf("Number of words: %d, of which distinct: %d\n", count, ht_count(h));
     ht_destroy(h);
 
     if (filein != stdin) fclose(filein);
