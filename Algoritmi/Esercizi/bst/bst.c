@@ -498,7 +498,7 @@ int bst_height(const BST *T)
    sono il contenuto del sottoalbero sinistro e destro di `n`.  Se `n`
    è vuoto (cioè n == NULL), stampa `()`
 */
-static void bst_print_rec( const BSTNode *n )
+/*static void bst_print_rec( const BSTNode *n )
 {
     printf("(");
     if (n != NULL) {
@@ -508,15 +508,16 @@ static void bst_print_rec( const BSTNode *n )
         bst_print_rec(n->right);
     }
     printf(")");
-}
+}*/
 
 /* Nota: la funzione di stampa assume che `BSTKey` sia il tipo
    `int` */
-void bst_print( const BST *T )
+void bst_print(const BST *T)
 {
     assert(T != NULL);
 
-    bst_print_rec(T->root);
+    /*bst_print_rec(T->root);*/
+    bst_pretty_print(T);
     printf("\n");
 }
 
@@ -532,17 +533,14 @@ void bst_print( const BST *T )
    chiave di `n`. */
 static void bst_pretty_print_rec( const BSTNode *n, int depth )
 {
+    int i;
     if (n != NULL) {
-        /* [TODO] Si suggerisce di procedere come segue:
-
-           1. Stampa ricorsivamente il sottoalbero destro invocando
-              bst_pretty_print_rec(n->right, depth+1);
-
-           2. Stampa 3*n spazi, seguiti dal valore della chiave n->key;
-
-           3. Stampa ricorsivamente il sottoalbero sinistro invocando
-           bst_pretty_print_rec(n->left, depth+1);
-        */
+        bst_pretty_print_rec(n->right, depth + 1);
+        for (i = 0; i < depth; i++) {
+            printf("   ");
+        }
+        printf("%d\n", n->key);
+        bst_pretty_print_rec(n->left, depth + 1);
     }
 }
 
