@@ -437,6 +437,7 @@ static void bst_delete_rec(BST *T, BSTNode *n) {
         if (x != NULL) {
             x->parent = n->parent;
         }
+        free(n);
     }
 }
 
@@ -470,8 +471,6 @@ static int bst_height_rec(const BSTNode *n)
 
     if (n == NULL) {
         return -1;
-    } else if (bst_is_leaf(n)) {
-        return 0;
     }
 
     height_right = bst_height_rec(n->right);
@@ -533,8 +532,8 @@ void bst_print(const BST *T)
    chiave di `n`. */
 static void bst_pretty_print_rec( const BSTNode *n, int depth )
 {
-    int i;
     if (n != NULL) {
+        int i;
         bst_pretty_print_rec(n->right, depth + 1);
         for (i = 0; i < depth; i++) {
             printf("   ");
