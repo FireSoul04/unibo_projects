@@ -81,7 +81,6 @@ Per eseguire in ambiente Windows:
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <math.h>
 #include "graph.h"
 
 /* Si può usare il simbolo NODE_UNDEF per indicare che il predecessore
@@ -103,14 +102,45 @@ int *finish;    /* `finish[v]` è l'istante di tempo in cui tutti i
 Color *color;   /* `color[v]` è il colore del nodo `v` (vedi libro di
                    testo) */
 
+void dfs_visit(int u) {
+    Edge *adj;
+    int v;
+    t++;
+    discover[u] = t;
+    color[u] = GREY;
+    
+    for (adj = graph_adj(G, u); adj != NULL; adj = adj->next) {
+        v = adj->dst;
+        if (color[v] == WHITE) {
+            p[v] = u;
+            dfs_visit(v);
+        }
+    }
+    color[u] = BLACK;
+    t++;
+    finish[u] = t;
+}
 
 /* Visita il grafo `G` (definito nell'omonima variabile globale)
    usando l'algoritmo di visita in profondità (DFS) partendo da tutti
    i nodi. Non viene passato un nodo sorgente, perché questa versione
    di DFS deve visitare l'intero grafo. */
-void dfs( void )
+void dfs( int n )
 {
     /* [TODO] */
+    int u;
+
+    for (u = 0; u < n; u++) {
+        color[u] = WHITE;
+        p[u] = NODE_UNDEF;
+    }
+    t = 0;
+
+    for (u = 0; u < n; u++) {
+        if (color[u] == WHITE) {
+            dfs_visit(u);
+        }
+    }
 }
 
 /* Stampa i predecessori di ciascun nodo lungo l'albero di visita;
@@ -154,7 +184,7 @@ int main( int argc, char *argv[] )
     discover = (int*)malloc( n * sizeof(*discover) ); assert(discover != NULL);
     finish = (int*)malloc( n * sizeof(*finish) ); assert(finish != NULL);
     color = (Color*)malloc( n * sizeof(*color) ); assert(color != NULL);
-    dfs( );
+    dfs(n);
     print_dfs( );
     graph_destroy(G);
     free(p);

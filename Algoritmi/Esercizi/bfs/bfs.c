@@ -133,7 +133,6 @@ di gioco che non possono essere ottenute da quella iniziale?
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <math.h>
 #include "graph.h"
 #include "list.h"
 
