@@ -20,8 +20,15 @@ void main()
     unsigned int m = 3; // numero di righe della prima matrice
     unsigned int n = 2; // numero di colonne della prima matrice
     unsigned int k = 4; // numero di colonne della seconda matrice
-    short int mat1[] = { -1,-2, 4,5, 4,-2 }; // prima matrice
-    short int mat2[] = { 2,0,0,0, 0,2,0,0 }; // seconda matrice
+    short int mat1[] = { 
+        -1,-2, 
+         4, 5, 
+         4,-2 
+    }; // prima matrice
+    short int mat2[] = { 
+        2,0,0,0, 
+        0,2,0,0 
+    }; // seconda matrice
     int mat3[1024]; // matrice risultato
 
     __asm

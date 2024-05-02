@@ -15,6 +15,14 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.exe.recipe
+*.iobj
+*.ipdb
+*.obj
+*.tlog
+*.pdb
+*.lastbuildstate
+*.log
 
 .vscode/
 .vs/

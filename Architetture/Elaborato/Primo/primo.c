@@ -26,60 +26,67 @@ void main() {
 		printf("%s\n", strings[i]);
 	puts("");
 
-	int N;
-
 	__asm {
-		mov eax, 2
-		mov ebx, 0
+	// Ordina l'array strings in base ai valori della tabella ASCII
+		xor eax, eax						// Contatore della prima stringa
+	ciclo_prima_stringa:
+		cmp eax, num						// Esco da entrambi i cicli se il primo contatore arriva alla fine dell'array
+		je fine
+		xor ebx, ebx						// Contatore della seconda stringa
+	ciclo_seconda_stringa:
+		cmp ebx, num						// Esco dal secondo ciclo e aggiorno il contatore del primo ciclo
+		je incrementa_primo_contatore
+		cmp eax, ebx						// Caso particolare in cui gli indici sono uguali
+		je incrementa_secondo_contatore
 		call compara_stringa
-		mov N, eax
-		cmp eax, 0
-		ja str_maggiore
-	str_minore:
-		mov eax, 2
-		mov ebx, 0
-		jmp scambia
-	str_maggiore:
-		mov eax, 0
-		mov ebx, 2
-	scambia:
-		call scambia_stringa
-		jmp fine
+		cmp edx, 0							// Controllo il risultato del confronto tra stringhe
+		jle incrementa_secondo_contatore
+		call scambia_stringa				// Se la prima stringa è minore della seconda scambia i puntatori
+	incrementa_secondo_contatore:
+		inc ebx
+		jmp ciclo_seconda_stringa
+	incrementa_primo_contatore:
+		inc eax
+		jmp ciclo_prima_stringa
 
-	compara_stringa: // Compara due stringhe negli indici eax e ebx
-		lea edx, strings
-		mov esi, [edx + eax * 4]
-		mov edi, [edx + ebx * 4]
+	// Compara due stringhe di strings negli indici eax e ebx seguendo i valori della tabella ASCII
+	// ritorna in edx 0 se è uguale, 1 se è maggiore o -1 se è minore
+	compara_stringa:
+		mov esi, [strings + eax * 4]
+		mov edi, [strings + ebx * 4]
 		xor ecx, ecx
 	ciclo_compara:
-		cmp [esi + ecx], 0 // Controllo se la prima stringa arriva alla fine
-		je fine_compara
-		cmp [edi + ecx], 0 // Controllo se la seconda stringa arriva alla fine
-		je fine_compara
+		mov dl, [esi + ecx]			// Salvo ogni carattere delle stringhe
+		mov dh, [edi + ecx]
 		inc ecx
-		mov al, [esi + ecx]
-		cmp al, [edi + ecx] // Se i caratteri sono uguali continuo il ciclo
+		cmp dl, 0					// Controllo se la prima stringa arriva alla fine
+		je stringa_uguale
+		cmp dh, 0					// Controllo se la seconda stringa arriva alla fine
+		je stringa_uguale
+		cmp dh, dl					// Se i caratteri sono uguali continuo il ciclo
 		je ciclo_compara
-		jb minore
-	maggiore:
-		mov eax, 1	// Se è maggiore ritorna 1
+		jl stringa_minore
+	stringa_maggiore:
+		mov edx, 1
 		jmp fine_compara
-	minore:
-		mov eax, -1	// Se è minore ritorna -1
+	stringa_minore:
+		mov edx, -1
+		jmp fine_compara
+	stringa_uguale:
+		xor edx, edx				// Le due stringhe sono uguali e ritorno 0
 	fine_compara:
 		ret
 
-	scambia_stringa: // Scambia le posizioni di due stringhe, prende i valori dei due indici in eax e ebx
+	// Scambia le posizioni di due stringhe, prende i valori dei due indici in eax e ebx
+	scambia_stringa:
 		lea esi, strings
 		mov edi, [esi + eax * 4]
 		xchg edi, [esi + ebx * 4]
-		mov [strings + eax * 4], edi
+		mov [esi + eax * 4], edi
 		ret
 
 	fine:
 	}
-
-	printf("\nDifferenza str: %d\n\n", N);
 
 
 	// Stampa su video
