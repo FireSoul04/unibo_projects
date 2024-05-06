@@ -60,9 +60,9 @@ void main() {
 		mov dh, [edi + ecx]
 		inc ecx
 		cmp dl, 0					// Controllo se la prima stringa arriva alla fine
-		je stringa_uguale
+		je stringa_maggiore
 		cmp dh, 0					// Controllo se la seconda stringa arriva alla fine
-		je stringa_uguale
+		je stringa_minore
 		cmp dh, dl					// Se i caratteri sono uguali continuo il ciclo
 		je ciclo_compara
 		jl stringa_minore
