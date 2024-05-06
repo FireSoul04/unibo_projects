@@ -32,50 +32,77 @@ void main()
     int mat3[1024]; // matrice risultato
 
     __asm {
+        // Azzera il contenuto da riservare a mat3
         mov eax, m
         mul k                           // Lunghezza effettiva della matrice risultato
         mov ecx, eax
+        lea esi, mat3
     inizializza_matrice:
         xor eax, eax
-        mov [mat3 + ecx * 4 - 4], eax
+        mov [esi + ecx * 4 - 4], eax
         loop inizializza_matrice
+
     inizio:
+        lea esi, mat1
+        lea edi, mat2
         xor ebx, ebx                    // Colonna di mat2
     primo_ciclo:
-        xor ecx, ecx                    // Indice della cella di mat1 (indicata come indice di array tradizionale)a
+        xor ecx, ecx                    // Riga di mat1
     secondo_ciclo:
-        xor edx, edx                    // Indice della cella di mat2 (indicata come riga * m + colonna)
+        xor edx, edx                    // Colonna di mat1
     terzo_ciclo:                        // Salvo tutti i contatori per non perderli durante i prodotti
+        push ebx
+        push ecx
         push edx
-    prodotto_riga_per_colonna:
-        add edx, ebx                    // Cambio colonna di mat2
-        mov ax, [mat2 + edx * 2]        // Salvo in AX la cella nell'indice calcolato nel prodotto precedente
-        imul word ptr [mat1 + ecx * 2]
-        shl edx, 16                     // Sposto il risultato della moltiplicazione nella word alta DX di 16 bit
-        add eax, edx                    // Aggiungo alla word alta di EAX la word DX
+        call prodotto_riga_per_colonna
         pop edx
-        add edx, ebx                    // Cambio colonna di mat3
-        add [mat3 + edx * 4], eax
-        add edx, k
-        inc ecx
-        mov eax, n
-        push edx
-        mul k
-        pop edx
-        cmp edx, eax                    // Continuo il ciclo finché non finisco di scorrere le righe di mat2
+        pop ecx
+        pop ebx
+        inc edx
+        cmp edx, n
         jb terzo_ciclo
     fine_terzo_ciclo:
-        push edx
-        mov eax, m
-        mul n
-        pop edx
-        cmp ecx, eax                   // Rincomincio il ciclo quando l'indice ECX ha visto ogni dato della matrice
+        inc ecx
+        cmp ecx, m
         jb secondo_ciclo
     fine_secondo_ciclo:
         inc ebx
         cmp ebx, k
         jb primo_ciclo
     fine_primo_ciclo:
+        jmp fine
+
+    // Esegue il prodotto riga per colonna di mat1 e mat2 per salvarlo in mat3
+    prodotto_riga_per_colonna:
+        push edx
+        mov eax, ecx
+        mul n
+        pop edx
+        add eax, edx                    // Cambio colonna di mat1
+        push edx
+        mov ax, [esi + eax * 2]         // Salvo in AX la cella nell'indice calcolato nel prodotto precedente
+        push ax
+        mov eax, edx
+        mul k
+        add eax, ebx                    // Cambio colonna di mat2
+        mov edx, eax
+        xor eax, eax
+        pop ax
+        imul word ptr [edi + edx * 2]   // Moltiplico le celle
+        shl edx, 16                     // Sposto il risultato della moltiplicazione nella word alta DX di 16 bit
+        add eax, edx                    // Aggiungo alla word alta di EAX la word DX
+        push eax
+    somma_a_cella:
+        mov eax, ecx
+        mul k
+        add eax, ebx                    // Cambio colonna di mat3
+        mov edx, eax
+        pop eax
+        add [mat3 + edx * 4], eax
+        pop edx
+        ret
+
+    fine:
     }
 
     // Stampa su video
