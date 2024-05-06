@@ -59,47 +59,45 @@ void main()
         pop ecx
         pop ebx
         inc edx
-        cmp edx, n
+        cmp edx, n                      // Continuo finché non scorre n righe di mat1
         jb terzo_ciclo
     fine_terzo_ciclo:
         inc ecx
-        cmp ecx, m
+        cmp ecx, m                      // Continuo finché non scorre m colonne di mat1
         jb secondo_ciclo
     fine_secondo_ciclo:
         inc ebx
-        cmp ebx, k
+        cmp ebx, k                      // Continuo finché non scorre k colonne di mat2
         jb primo_ciclo
     fine_primo_ciclo:
         jmp fine
 
     // Esegue il prodotto riga per colonna di mat1 e mat2 per salvarlo in mat3
     prodotto_riga_per_colonna:
-        push edx
+        push edx                        // Salvo EDX per non perderlo
         mov eax, ecx
-        mul n
+        mul n                           // Cambio riga di mat1
         pop edx
         add eax, edx                    // Cambio colonna di mat1
-        push edx
         mov ax, [esi + eax * 2]         // Salvo in AX la cella nell'indice calcolato nel prodotto precedente
-        push ax
+        push ax                         // Salvo la cella di mat1 nello stack
         mov eax, edx
-        mul k
+        mul k                           // Cambio riga di mat1
         add eax, ebx                    // Cambio colonna di mat2
         mov edx, eax
-        xor eax, eax
+        xor eax, eax                    // Azzero EAX in modo da non avere valori sconosciuti nella word alta quando faccio il pop
         pop ax
-        imul word ptr [edi + edx * 2]   // Moltiplico le celle
+        imul word ptr [edi + edx * 2]   // Riprendo la cella di mat1 per moltiplicarla con quella di mat2
         shl edx, 16                     // Sposto il risultato della moltiplicazione nella word alta DX di 16 bit
         add eax, edx                    // Aggiungo alla word alta di EAX la word DX
-        push eax
+        push eax                        // Salvo il risultato della moltiplicazione delle due celle
     somma_a_cella:
         mov eax, ecx
-        mul k
+        mul k                           // Cambio riga di mat3
         add eax, ebx                    // Cambio colonna di mat3
         mov edx, eax
-        pop eax
-        add [mat3 + edx * 4], eax
-        pop edx
+        pop eax                         // Riprendo il risultato della precedente moltiplicazione delle celle
+        add [mat3 + edx * 4], eax       // Sommo il risultato della moltiplicazione con i risultati di moltiplicazioni precedenti
         ret
 
     fine:
