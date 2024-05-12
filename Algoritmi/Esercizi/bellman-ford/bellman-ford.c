@@ -296,6 +296,7 @@ altri.
 
 ***/
 
+#include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -318,6 +319,13 @@ int relax( const Edge *e, double *d, int *p, const Edge **sp )
     const double w = e->weight;
     /* TODO: eseguire un passo di rilassamento relativamente all'arco
        (u, v) di peso w. */
+    
+    if (d[u] + w < d[v]) {
+        d[v] = d[u] + w;
+        p[v] = u;
+        sp[v] = e;
+        return 1;
+    }
     return 0;
 }
 
@@ -353,7 +361,28 @@ int relax( const Edge *e, double *d, int *p, const Edge **sp )
 int bellman_ford( const Graph *g, int s, double *d, int *p, const Edge **sp )
 {
     /* [TODO] */
-    return 0;
+    int i, v, updated;
+    const int n = graph_n_nodes(g);
+    const Edge *e;
+
+    for (i = 0; i < n; i++) {
+        d[i] = HUGE_VAL;
+        p[i] = NODE_UNDEF;
+    }
+
+    /* Inizializzo la distanza con il primo nodo a 0 */
+    d[s] = 0.0;
+    updated = 1;
+    for (i = 0; i < n && updated; i++) {
+        updated = 0;
+        for (v = 0; v < n; v++) {
+            for (e = graph_adj(g, v); e != NULL; e = e->next) {
+                updated |= relax(e, d, p, sp);
+            }
+        }
+    }
+
+    return updated;
 }
 
 /* Stampa l'elenco degli archi dell'albero dei cammini minimi nello
@@ -396,8 +425,18 @@ void print_sp( const Graph *g, const Edge **sp )
    semplice. */
 void print_path(const int *p, int src, int dst)
 {
-    printf("TODO");
     /* [TODO] */
+    if (dst == NODE_UNDEF) {
+        printf("Non raggiungibile");
+    } else if (src == dst) {
+        printf("%d", src);
+    } else {
+        print_path(p, src, p[dst]);
+
+        if (p[dst] != NODE_UNDEF) {
+            printf("->%d", dst);
+        }
+    }
 }
 
 /* Stampa la distanza e il cammino minimo da src a dst; se dst < 0,
