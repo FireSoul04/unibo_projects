@@ -24,65 +24,59 @@ void main()
     unsigned char errori = 0;	// 1 = errori; 0 = no errori
 
     __asm {
-        mov ecx, len                    // Salvo la lunghezza come contatore del ciclo
-        cmp ecx, 0                      // Controllo se la lunghezza è 0
+        mov ebx, len                    // Salvo la lunghezza come contatore del ciclo
+        cmp ebx, 0                      // Controllo se la lunghezza è 0
         je fine
-        push ecx                        // Salvo il contatore per riprenderlo successivamente
-        xor ecx, ecx
-        mov cl, n
-        xor edx, edx
-    maschera:                           // Creo una maschera di n bit a 1 in EDX
-        shl edx, 1
-        inc edx
-        loop maschera
-        pop ecx                         // Riprendo il contatore
-        lea esi, vet
-    estrai_byte:
-        cmp ecx, 32
-        jb scorri_n
-        push ecx
-        shr ecx, 3                      // Divido per 8
-        movbe eax, [esi + ecx - 3]      // Prendo i byte in big endian in modo da gestirli sequenzialmente
-        pop ecx
-    scorri_n:                           // Esegue uno shift di n bit
-        push ecx
-        mov cl, n
-        shr eax, cl
-        pop ecx
-        cmp eax, 0
-        je estrai_byte
-    bit_parita:
+        mov ch, 8                       // Contatore per gestire quando passare al prossimo byte
+        lea esi, vet                    // Salvo in ESI il puntatore del primo byte
+        mov al, [esi]
+    ciclo:
         cmp errori, 1                   // Al primo errore che trova finisce il programma
         je fine
-        mov ebx, eax
-        and ebx, 1                      // Salva il bit di parità in EDX e scorre un bit verso destra
-        shr eax, 1
+        xor ah, ah                      // Azzero il bit di parità di un blocco
+        mov cl, n
     estrai_bit:
-        and eax, edx                    // Controllo n bit
-        cmp eax, 0
-        je estrai_byte
-        push ecx
+        test al, 1
+        jz pari                         // Se l'and restituisce 0 AH è pari e non aggiungo un bit alla parità
+        xor ah, 1                       // Conto la parità in AH, uso l'XOR per evitare di gestire la carry
+    pari:
+        shr al, 1
+    segui_byte:
+        dec ebx
+        cmp ebx, 0                      // Controllo quando ho finito di scorrere i bit
+        je fine
+        call controlla_byte
+        dec cl
+        cmp cl, 0
+        jg estrai_bit
+    bit_parita:
+        mov dl, al
+        and dl, 1                       // Salvo il bit di parità in DL
+        shr al, 1                       // Passo al primo bit del blocco
         call controlla_parita
-        pop ecx
-        push ecx
-        mov cl, n
-        shr ebx, cl                     // Eseguo uno shift di n bit
-        pop ecx
-        loop estrai_bit
-        jmp fine
+        call controlla_byte
+        dec ebx
+        cmp ebx, 0                      // Controllo quando ho finito di scorrere i bit
+        je fine
+        jmp ciclo
 
+    // Confronto il bit di parità con la parità del blocco di bit
     controlla_parita:
-        mov cl, n
-    ciclo_parita:
-        cmp eax, 0
-        je fine_parita
-        test eax, 1                     // Controlliamo il bit se è a uno
-        jne bit_zero
-        or errori, 1                    // Aggiungiamo il bit di parita
-    bit_zero:
-        shr eax, 1
-        loop ciclo_parita
-    fine_parita:
+        cmp ah, dl
+        je fine_controllo
+        or errori, 1                    // Se la parità dei bit e il bit di parità sono uguali inizializzo errori a 1
+    fine_controllo:
+        ret
+
+    // Controlla se devo controllare il prossimo byte del vettore
+    controlla_byte:
+        dec ch                          // Contatore di bit, quando arriva a 0 passo al byte successivo
+        cmp ch, 0
+        jg fine_controllo_byte
+        inc esi                         // Passo al prossimo byte
+        mov ch, 8
+        mov al, [esi]                   // Prende il byte successivo
+    fine_controllo_byte:
         ret
 
     fine:

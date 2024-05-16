@@ -174,9 +174,11 @@ MFSet *mfset_create(int n)
     s->n = n;
     s->p = (int*)malloc(n * sizeof(*(s->p)));
     assert(s->p != NULL);
-    s->h = NULL; /* L'array h[] va creato solo se si vuole implementare l'euristica "union by rank"; in caso contrario può essere ignorato, e per tale ragione viene posto a NULL */
+    s->h = (int *)malloc(n * sizeof(int));
+    assert(s->h != NULL);
     for (i=0; i<n; i++) {
         s->p[i] = i;
+        s->h[i] = 0;
     }
     return s;
 }
@@ -187,29 +189,48 @@ void mfset_destroy(MFSet *s)
 
     s->n = 0;
     free(s->p);
-    s->p = NULL; /* Non necessario */
+    free(s->h);
     free(s);
 }
 
 void mfset_merge(MFSet *s, int x, int y)
 {
     /* [TODO] */
+    int px, py;
 
     assert(s != NULL);
     assert((x >= 0) && (x < s->n));
     assert((y >= 0) && (y < s->n));
 
+    px = mfset_find(s, x);
+    py = mfset_find(s, y);
 
+    if (px == py) {
+        return;
+    }
+
+    if (s->h[px] > s->h[py]) {
+        s->p[py] = x;
+    } else {
+        s->p[px] = y;
+        if (s->h[px] == s->h[py]) {
+            s->h[py]++;
+        }
+    }
 }
 
 int mfset_find(MFSet *s, int x)
 {
     /* [TODO] */
-
+    
     assert(s != NULL);
     assert(x >= 0);
     assert(x < s->n);
-
-
-    return -1;
+    
+    while (s->p[x] != x) {
+        x = s->p[x];
+        assert(x >= 0);
+        assert(x < s->n);
+    }
+    return x;
 }
