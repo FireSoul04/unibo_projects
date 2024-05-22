@@ -168,6 +168,24 @@ su Windows:
    della lista dei padri non esiste. */
 const int NODE_UNDEF = -1;
 
+/* Esegue un passo di rilassamento sull'arco e. Aggiorna l'array dei
+   predecessori `p[]`, delle distanze `d[]` e degli archi `s[]` se
+   necessario. Aggiorno anche la distanza dal nodo sorgente nell'heap */
+void relax( const Edge *e, MinHeap *h, double *d, int *p, const Edge **sp )
+{
+    const int u = e->src;
+    const int v = e->dst;
+    const double w = e->weight;
+    
+    if (d[u] + w < d[v]) {
+        d[v] = d[u] + w;
+        p[v] = u;
+        sp[v] = e;
+
+        minheap_change_prio(h, v, d[v]);
+    }
+}
+
 /* Calcola l'albero dei cammini minimi dalla sorgente s usando
    l'algoritmo di Dijkstra.
 
@@ -196,6 +214,32 @@ const int NODE_UNDEF = -1;
 void dijkstra( const Graph *g, int s, double *d, int *p, const Edge **sp )
 {
     /* [TODO] */
+    int v, n = graph_n_nodes(g);
+    MinHeap *h = minheap_create(n);
+    const Edge *e;
+
+    for (v = 0; v < n; v++) {
+        d[v] = HUGE_VAL;
+        p[v] = NODE_UNDEF;
+    }
+    d[s] = 0.0;
+
+    /* Riempio l'heap con tutti i nodi */
+    for (v = 0; v < n; v++) {
+        minheap_insert(h, v, d[v]);
+    }
+    
+    /* Scorro l'heap finché non è vuoto, estraggo ogni volta l'arco più 
+        piccolo del nodo attuale e lo rilasso */
+    while (!minheap_is_empty(h)) {
+        v = minheap_delete_min(h);
+
+        for (e = graph_adj(g, v); e != NULL; e = e->next) {
+            relax(e, h, d, p, sp);
+        }
+    }
+
+    minheap_destroy(h);
 }
 
 /* Stampa l'elenco degli archi dell'albero dei cammini minimi nello
@@ -240,8 +284,18 @@ void print_sp( const Graph *g, const Edge **sp )
    semplice. */
 void print_path(const int *p, int src, int dst)
 {
-    printf("TODO");
     /* [TODO] */
+    if (dst == NODE_UNDEF) {
+        printf("Non raggiungibile");
+    } else if (src == dst) {
+        printf("%d", src);
+    } else {
+        print_path(p, src, p[dst]);
+
+        if (p[dst] != NODE_UNDEF) {
+            printf("->%d", dst);
+        }
+    }
 }
 
 /* Stampa la distanza e il cammino minimo da src a dst; se dst < 0,
@@ -312,6 +366,7 @@ int main( int argc, char *argv[] )
 
     dijkstra(G, src, d, p, sp);
     /* print_sp(G, sp); */
+    
     print_dist(G, src, dst, p, d);
     graph_destroy(G);
 

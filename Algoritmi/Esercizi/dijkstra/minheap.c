@@ -22,7 +22,7 @@
 /***
 % LabASD - Min-Heap binario
 % Moreno Marzolla <moreno.marzolla@unibo.it>
-% Ultimo aggiornamento: 2024-03-14
+% Ultimo aggiornamento: 2024-03-15
 
 ![Fonte: <https://xkcd.com/835/>](http://imgs.xkcd.com/comics/tree.png)
 
@@ -165,15 +165,15 @@ Operazione                     Costo
 
 `minheap_insert()`             $O(\log n)$
 
-`minheap_change_prio()`        $O(\log n)$ oppure $O(n)$[^1]
+`minheap_change_prio()`        $O(n)$ oppure $O(\log n)$[^1]
 --------------------------------------------------------------
 
 [^1]: Per iniziare, realizzare `minheap_change_prio()` mediante una
 scansione dell'array `heap[]` per cercare la posizione dell'elemento
 di chiave data; questa soluzione richiede tempo $O(n)$ nel caso
 peggiore. Nel seguito vengono forniti [alcuni
-suggerimenti](#suggerimenti) per ridurre a $O(\log n)$ il costo
-asintotico di questa operazione.
+suggerimenti](#suggerimenti) per ridurre il costo asintotico di questa
+operazione a $O(\log n)$ nel caso peggiore.
 
 Il programma [minheap-main.c](minheap-main.c) contiene una funzione
 `main()` che legge da file una sequenza di comandi, uno per ogni riga,
@@ -278,20 +278,20 @@ attenzione, ma non è particolarmente problematico.
 - [minheap3.in](minheap3.in)
 
  ***/
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "minheap.h"
 
-void minheap_print(const MinHeap *h) {
+void minheap_print(const MinHeap *h)
+{
     int i, j, width = 1;
 
     assert(h != NULL);
 
     printf("\n** Contenuto dello heap:\n\n");
     printf("n=%d size=%d\n", h->n, h->size);
-    printf("Contenuto dell'array heap[] (stampato a livelli:\n");
+    printf("Contenuto dell'array heap[] (stampato a livelli):\n");
     i = 0;
     while (i < h->n) {
         j = 0;
@@ -303,17 +303,27 @@ void minheap_print(const MinHeap *h) {
         printf("\n");
         width *= 2;
     }
+    printf("\nContenuto dell'array pos[]:\n");
+    for (i=0; i<h->size; i++) {
+        printf("pos[%d]=%d ", i, h->pos[i]);
+    }
     printf("\n\n** Fine contenuto dello heap\n\n");
 }
 
-void minheap_clear( MinHeap *h ) {
+void minheap_clear( MinHeap *h )
+{
+    int i;
     assert(h != NULL);
+    for (i=0; i<h->size; i++) {
+        h->pos[i] = -1;
+    }
     h->n = 0;
 }
 
 /* Costruisce un min-heap vuoto che può contenere al massimo
    `size` elementi */
-MinHeap *minheap_create(int size) {
+MinHeap *minheap_create(int size)
+{
     MinHeap *h = (MinHeap*)malloc(sizeof(*h));
     assert(h != NULL);
     assert(size > 0);
@@ -321,25 +331,14 @@ MinHeap *minheap_create(int size) {
     h->size = size;
     h->heap = (HeapElem*)malloc(size * sizeof(*(h->heap)));
     assert(h->heap != NULL);
-    init_pos(h, size); /* [TODO] qualora si decidesse di usare l'array
-                      `pos`, occorrerà allocarlo e inizializzarlo
-                      qui. Occorrerà poi liberare la memoria nella
-                      funzione `minheap_destroy()` */
+    h->pos = (int*)malloc(size * sizeof(*(h->pos)));
+    assert(h->pos != NULL);
     minheap_clear(h);
     return h;
 }
 
-void init_pos(MinHeap *h, int size) {
-    int i;
-    h->pos = (int*)malloc(size * sizeof(*(h->pos)));
-    assert(h->pos != NULL);
-
-    for (i = 0; i < h->size; i++) {
-        h->pos[i] = -1;
-    }
-}
-
-void minheap_destroy( MinHeap *h ) {
+void minheap_destroy( MinHeap *h )
+{
     assert(h != NULL);
 
     h->n = h->size = 0;
@@ -364,32 +363,35 @@ void minheap_destroy( MinHeap *h ) {
 /* Funzione di supporto: restituisce 1 sse l'indice `i` appartiene
    all'intervallo degli indici validi degli elementi validi nell'array
    che rappresenta lo heap. */
-static int valid(const MinHeap *h, int i) {
+static int valid(const MinHeap *h, int i)
+{
     assert(h != NULL);
 
     return ((i >= 0) && (i < h->n));
 }
 
 /* Funzione di supporto: scambia heap[i] con heap[j] */
-static void swap(MinHeap *h, int i, int j) {
+static void swap(MinHeap *h, int i, int j)
+{
     HeapElem tmp;
-    int tmp_pos;
 
     assert(h != NULL);
     assert(valid(h, i));
     assert(valid(h, j));
-
-    tmp_pos = h->pos[h->heap[i].key];
-    h->pos[h->heap[i].key] = h->pos[h->heap[j].key];
-    h->pos[h->heap[j].key] = tmp_pos;
+    assert(h->pos[h->heap[i].key] == i);
+    assert(h->pos[h->heap[j].key] == j);
 
     tmp = h->heap[i];
     h->heap[i] = h->heap[j];
     h->heap[j] = tmp;
+
+    h->pos[h->heap[i].key] = i;
+    h->pos[h->heap[j].key] = j;
 }
 
 /* Funzione di supporto: restituisce l'indice del padre del nodo i */
-static int parent(const MinHeap *h, int i) {
+static int parent(const MinHeap *h, int i)
+{
     assert(valid(h, i));
 
     return (i+1)/2 - 1;
@@ -398,7 +400,8 @@ static int parent(const MinHeap *h, int i) {
 /* Funzione di supporto: restituisce l'indice del figlio sinistro del
    nodo `i`. Ritorna un indice non valido se `i` non ha figlio
    sinistro. */
-static int lchild(const MinHeap *h, int i) {
+static int lchild(const MinHeap *h, int i)
+{
     assert(valid(h, i));
 
     return 2*i + 1;
@@ -407,7 +410,8 @@ static int lchild(const MinHeap *h, int i) {
 /* Funzione di supporto: restituisce l'indice del figlio destro del
    nodo `i`. Ritorna un indice non valido se `i` non ha figlio
    destro. */
-static int rchild(const MinHeap *h, int i) {
+static int rchild(const MinHeap *h, int i)
+{
     assert(valid(h, i));
 
     return 2*i + 2;
@@ -415,30 +419,27 @@ static int rchild(const MinHeap *h, int i) {
 
 /* Funzione di supporto: restituisce l'indice del figlio di `i` con
    priorità minima. Se `i` non ha figli, restituisce -1 */
-static int min_child(const MinHeap *h, int i) {
-    int leatest, l, r, elements = minheap_get_n(h);
+static int min_child(const MinHeap *h, int i)
+{
+    int l, r, result = -1;
 
     assert(valid(h, i));
 
     l = lchild(h, i);
     r = rchild(h, i);
-    if (l >= elements) { /* Se i non ha figli */
-        return -1;
-    } else if (r >= elements) {
-        return l;
+    if (valid(h, l)) {
+        result = l;
+        if (valid(h, r) && (h->heap[r].prio < h->heap[l].prio)) {
+            result = r;
+        }
     }
-    
-    leatest = l;
-    if (h->heap[r].prio < h->heap[l].prio) {
-        leatest = r;
-    }
-
-    return leatest;
+    return result;
 }
 
 /* Funzione di supporto: scambia l'elemento in posizione `i` con il
    padre fino a quando raggiunge la posizione corretta nello heap */
-static void move_up(MinHeap *h, int i) {
+static void move_up(MinHeap *h, int i)
+{
     int p;
 
     assert(valid(h, i));
@@ -454,21 +455,29 @@ static void move_up(MinHeap *h, int i) {
 /* Funzione di supporto: scambia l'elemento in posizione `i` con il
    figlio avente priorità minima, fino a quando l'elemento raggiunge
    la posizione corretta. */
-static void move_down(MinHeap *h, int i) {
-    int c;
+static void move_down(MinHeap *h, int i)
+{
+    int done = 0;
 
     assert(valid(h, i));
 
-    c = min_child(h, i);
-    while (valid(h, i) && c != -1 && (h->heap[i].prio > h->heap[c].prio)) {
-        swap(h, i, c);
-        i = c;
-        c = min_child(h, i);
-    }
+    /* L'operazione viene implementata iterativamente, sebbene sia
+       possibile una implementazione ricorsiva probabilmente più
+       leggibile. */
+    do {
+        const int dst = min_child(h, i);
+        if (valid(h, dst) && (h->heap[dst].prio < h->heap[i].prio)) {
+            swap(h, i, dst);
+            i = dst;
+        } else {
+            done = 1;
+        }
+    } while (!done);
 }
 
 /* Restituisce true (nonzero) se lo heap è vuoto */
-int minheap_is_empty(const MinHeap *h) {
+int minheap_is_empty(const MinHeap *h)
+{
     assert(h != NULL);
 
     return (h->n == 0);
@@ -476,75 +485,110 @@ int minheap_is_empty(const MinHeap *h) {
 
 /* Restituisce true (nonzero) se lo heap è pieno, cioè è stata
    esaurita la capienza a disposizione */
-int minheap_is_full(const MinHeap *h) {
+int minheap_is_full(const MinHeap *h)
+{
     assert(h != NULL);
 
     return (h->n == h->size);
 }
 
 /* Restituisce il numero di elementi presenti nello heap */
-int minheap_get_n(const MinHeap *h) {
+int minheap_get_n(const MinHeap *h)
+{
     assert(h != NULL);
 
     return h->n;
 }
 
 /* Restituisce la chiave associata alla priorità minima */
-int minheap_min(const MinHeap *h) {
+int minheap_min(const MinHeap *h)
+{
     assert( !minheap_is_empty(h) );
 
     return h->heap[0].key;
 }
 
+/* Come minheap_min(), ma restituisce la coppia (chiave, prio); questa
+   funzione verrà utilizzata in future edizioni del corso al posto di
+   minheap_min(). */
+HeapElem minheap_min2( const MinHeap *h)
+{
+    assert( !minheap_is_empty(h) );
+
+    return h->heap[0];
+}
 
 /* Inserisce una nuova coppia (key, prio) nello heap. */
-void minheap_insert(MinHeap *h, int key, double prio) {
+void minheap_insert(MinHeap *h, int key, double prio)
+{
+    int i;
+
     assert( !minheap_is_full(h) );
     assert((key >= 0) && (key < h->size));
+    assert(h->pos[key] == -1);
 
-    /* Aumento il numero di nodi dell'heap e aggiungo il nodo 
-       nell'ultima posizione successivamente lo sposto verso la
-       posizione con la priorita' corretta */
-    h->n = minheap_get_n(h) + 1;
-    h->pos[key] = minheap_get_n(h) - 1;
-    h->heap[minheap_get_n(h) - 1].key = key;
-    h->heap[minheap_get_n(h) - 1].prio = prio;
-
-    move_up(h, minheap_get_n(h) - 1);
+    i = h->n++;
+    h->pos[key] = i;
+    h->heap[i].key = key;
+    h->heap[i].prio = prio;
+    move_up(h, i);
 }
 
 /* Rimuove la coppia (chiave, priorità) con priorità minima;
    restituisce la chiave associata alla priorità minima. */
-int minheap_delete_min(MinHeap *h) {
+int minheap_delete_min(MinHeap *h)
+{
+    int result;
+
     assert( !minheap_is_empty(h) );
 
-    swap(h, 0, minheap_get_n(h) - 1);
-    h->n = minheap_get_n(h) - 1;
-    h->pos[0] = -1;
-
-    move_down(h, 0);
-    return minheap_min(h);
+    result = minheap_min(h);
+    swap(h, 0, h->n-1);
+    assert( h->heap[h->n - 1].key == result );
+    h->pos[result] = -1;
+    h->n--;
+    if (!minheap_is_empty(h)) {
+        move_down(h, 0);
+    }
+    return result;
 }
 
+/* Come minheap_delete_min(), ma restituisce la coppia (chiave, prio);
+   questa funzione verrà utilizzata al posto di minheap_delete_min()
+   in future edizioni del corso. */
+HeapElem minheap_delete_min2(MinHeap *h)
+{
+    HeapElem result;
+
+    assert( !minheap_is_empty(h) );
+
+    result = minheap_min2(h);
+    swap(h, 0, h->n-1);
+    assert( h->heap[h->n - 1].key == result.key );
+    h->pos[result.key] = -1;
+    h->n--;
+    if (!minheap_is_empty(h)) {
+        move_down(h, 0);
+    }
+    return result;
+}
 
 /* Modifica la priorità associata alla chiave key. La nuova priorità
    può essere maggiore, minore o uguale alla precedente. */
-void minheap_change_prio(MinHeap *h, int key, double newprio) {
-    /*int i, elements;*/
+void minheap_change_prio(MinHeap *h, int key, double newprio)
+{
+    int j;
+    double oldprio;
+
     assert(h != NULL);
     assert(key >= 0 && key < h->size);
-
-    /* NOT OPTIMIZED
-    elements = minheap_get_n(h);
-    for (i = 0; i < elements && h->heap[i].key != key; i++);
-    h->heap[i].prio = newprio;
-
-    move_up(h, i);
-    move_down(h, i);*/
-
-    /* OPTIMIZED */
-    h->heap[h->pos[key]].prio = newprio;
-
-    move_up(h, h->pos[key]);
-    move_down(h, h->pos[key]);
+    j = h->pos[key];
+    assert( valid(h, j) );
+    oldprio = h->heap[j].prio;
+    h->heap[j].prio = newprio;
+    if (newprio > oldprio) {
+        move_down(h, j);
+    } else {
+        move_up(h, j);
+    }
 }
