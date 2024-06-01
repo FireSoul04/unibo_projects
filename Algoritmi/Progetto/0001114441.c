@@ -331,12 +331,25 @@ Coord graph_adj_coord(Coord cell, int dir) {
 }
 
 void relax(Graph *g, MinHeap *h, Edge *e, double *d, Coord *p) {
-    unsigned int n = g->n;
+    unsigned int m = g->m;
 
     /* Ottengo il peso di entrambe le celle e calcolo la distanza */
-    int u = e->src.y * n + e->src.x;
-    int v = e->dst.y * n + e->dst.x;
-    double height = (e->h_src - e->h_dst) * (e->h_src - e->h_dst);
+    int u = e->src.y * m + e->src.x;
+    int v = e->dst.y * m + e->dst.x;
+    double height;
+
+    int k = 0;
+    Coord dst;
+    int key;
+
+    dst.x = g->m - 1;
+    dst.y = g->n - 1;
+    key = dst.y * g->m + dst.x;
+    while (key >= 0) {
+        k++;
+        key = p[key].y * g->m + p[key].x;
+    }
+    height = g->c_cell * k + g->c_height * (e->h_src - e->h_dst) * (e->h_src - e->h_dst);
 
     if (d[u] + height < d[v]) {
         d[v] = d[u] + height;
@@ -368,7 +381,7 @@ void dijkstra(Graph *g, double *d, Coord *p) {
     /* Riempio l'heap con tutti i nodi */
     for (y = 0; y < n; y++) {
         for (x = 0; x < m; x++) {
-            int key = y * n + x;
+            int key = y * m + x;
             Coord cell;
             cell.x = x;
             cell.y = y;
@@ -478,7 +491,7 @@ void read_uint(FILE *f, unsigned int *ptr) {
  */
 Graph *graph_read_from_file(FILE *f) {
     Graph *g;
-    int i, j;
+    int x, y;
     unsigned int c_cell, c_height;
     unsigned int n, m;
 
@@ -503,31 +516,31 @@ Graph *graph_read_from_file(FILE *f) {
      */
     g->cells = (Cell **)malloc(sizeof(Cell *) * n);
     assert(g->cells != NULL);
-    for (i = 0; i < n; i++) {
-        g->cells[i] = (Cell *)malloc(sizeof(Cell) * m);
-        assert(g->cells[i] != NULL);
+    for (x = 0; x < n; x++) {
+        g->cells[x] = (Cell *)malloc(sizeof(Cell) * m);
+        assert(g->cells[x] != NULL);
     }
 
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
-            read_double(f, &(g->cells[i][j].height));
+    for (y = 0; y < n; y++) {
+        for (x = 0; x < m; x++) {
+            read_double(f, &(g->cells[y][x].height));
         }
     }
 
     return g;
 }
 
-void print_path(const Coord *p, Coord dst, unsigned int n, unsigned int size)
+void print_path(const Coord *p, Coord dst, unsigned int m, unsigned int size)
 {
-    int key = dst.y * n + dst.x;
+    int key = dst.y * m + dst.x;
     if (key < 0) {
         printf("Non raggiungibile");
     } else if (key == 0) {
         printf("0 0\n");
     } else {
-        print_path(p, p[key], n, size);
+        print_path(p, p[key], m, size);
 
-        printf("%d %d\n", dst.x, dst.y);
+        printf("%d %d\n", dst.y, dst.x);
 
         if (key == size - 1) {
             printf("-1 -1\n");
@@ -535,21 +548,20 @@ void print_path(const Coord *p, Coord dst, unsigned int n, unsigned int size)
     }
 }
 
-double road_total_cost(Graph *g, double *d, Coord *p, int k) {
-    int i;
+double road_total_cost(Graph *g, double *d, Coord *p) {
+    int k = 0;
     double init_cost;
     double total_distance;
-    int key = 0;
+    Coord dst;
+    int key;
 
-    init_cost = g->c_cell * k;
-    total_distance = 0;
-    for (i = 0; i < k - 1; i++) {
-        /*int key = p[i].y * g->n + p[i].x;
-        total_distance += d[key];*/
-    }
-    total_distance *= g->c_height;
+    dst.x = g->m - 1;
+    dst.y = g->n - 1;
+    key = dst.y * g->m + dst.x;
 
-    return init_cost + total_distance;
+    total_distance = d[key];
+
+    return total_distance;
 }
 
 int main(int argc, char **argv) {
@@ -583,11 +595,11 @@ int main(int argc, char **argv) {
 
     dijkstra(g, d, p);
     /*graph_print(g);*/
-    dst.x = g->n - 1;
-    dst.y = g->m - 1;
-    print_path(p, dst, g->n, size);
+    dst.x = g->m - 1;
+    dst.y = g->n - 1;
+    print_path(p, dst, g->m, size);
 
-    road_cost = road_total_cost(g, d, p, size);
+    road_cost = road_total_cost(g, d, p);
     printf("%.f\n", road_cost);
 
     free(p);
