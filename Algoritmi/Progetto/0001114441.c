@@ -1,512 +1,75 @@
 /* --------------------------------------------------------
-    Nome e cognome: Davide Mancini 
-    Matricola:      0001114441 
-    Classe:         A
-    Mail:           davide.mancini10@studio.unibo.it
+    Nome:       Davide 
+    Cognome:    Mancini 
+    Matricola:  0001114441 
+    Classe:     A
+    Mail:       davide.mancini10@studio.unibo.it
 ----------------------------------------------------------- */
 
 #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include <assert.h>
 
-/* Definisco le strutture Grafo e MinHeap */
+#define NODE_UNDEF -1
+#define DIRECTIONS 4
 
-typedef enum { GRAPH_UNDIRECTED, GRAPH_DIRECTED } Graph_type;
+/* Invece di implementare il grafo con matrici di adiacenza, ho strutturato
+ * un vettore di lunghezza 4 per ogni cella della matrice, dove ogni elemento
+ * contiene l'altezza delle celle adiacenti nelle rispettive direzioni, indicate
+ * dall'enum Direction qui sotto */
+typedef enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+} Direction;
 
-/* struttura arco */
+typedef struct Coord {
+    int x, y;
+} Coord;
+
 typedef struct Edge {
-    int src;            /* nodo sorgente        */
-    int dst;            /* nodo destinazione    */
-    double weight;      /* peso dell'arco       */
-    struct Edge *next;
+    Coord src, dst;
+    double h_src, h_dst;
 } Edge;
-
-/* struttura grafo */
-typedef struct {
-    int n;              /* numero di nodi               */
-    int m;              /* numero di archi              */
-    Graph_type t;       /* tipo di grafo (orientato/non orientato) */
-    Edge **edges;       /* array di liste di adiacenza  */
-    int *in_deg;        /* grado entrante dei nodi      */
-    int *out_deg;       /* grado uscente dei nodi       */
-} Graph;
 
 typedef struct {
     int key;
+    Coord cell;
     double prio;
 } HeapElem;
 
 typedef struct {
     HeapElem *heap;
-    int *pos;
-    int n; /* quante coppie (chiave, prio) sono effettivamente presenti nello heap */
-    int size; /* massimo numero di coppie (chiave, prio) che possono essere contenuti nello heap */
+    int *pos; /* Utilizzato per ottimizzare l'heap */
+    int n; /* Numero di coppie (chiave, prio) presenti nell'heap */
+    int size; /* Massimo numero di coppie (chiave, prio) che possono essere contenuti nell'heap */
 } MinHeap;
 
-/* Codice inerente alla struttura grafo */
-
-/* Crea un nuovo grafo con `n` nodi. Il numero di nodi deve essere
-   strettamente positivo. Il tipo di grafo (orientato oppure non
-   orientato) è specificato dal parametro `t`. */
-Graph *graph_create(int n, Graph_type t);
-
-/* Libera tutta la memoria occupata dal grafo e dalle liste di
-   adiacenza */
-void graph_destroy(Graph *g);
-
-/* Restituisce il tipo di grafo */
-Graph_type graph_type(const Graph *g);
-
-/* Aggiunge un nuovo arco (src, dst) con peso "weight". Si può
-   assumere che l'arco non esista già (si può omettere il controllo,
-   anche se nella soluzione fornita viene fatto). Nel caso di grafo
-   non orientato, occorre aggiungere l'arco sia nella lista di
-   adiacenza di `src` che in quella di `dst`.
-
-   Si presti attenzione a modificare correttamente gli array dei gradi
-   entranti e uscenti, e il numero di archi. */
-void graph_add_edge(Graph *g, int src, int dst, double weight);
-
-/* Cancella l'arco (src, dst) dal grafo. Se l'arco non è presente, non
-   fa nulla. Nel caso di grafo non orientato, occorre rimuovere l'arco
-   sia dalla lista di adiacenza di `src` che da quella di `dst`.
-
-   Si presti attenzione a modificare correttamente gli array dei gradi
-   entranti e uscenti, e il numero di archi solo se l'arco è stato
-   cancellato. */
-void graph_del_edge(Graph *g, int src, int dst);
-
-/* Restituisce un puntatore al primo arco della lista di adiacenza
-   associata al nodo `v` (`NULL` se la lista è vuota) */
-Edge *graph_adj(const Graph *g, int v);
-
-/* Restituisce il numero di nodi del grafo */
-int graph_n_nodes(const Graph *g);
-
-/* Restituisce il numero di archi del grafo */
-int graph_n_edges(const Graph *g);
-
-/* Restituisce il grado uscente del nodo `v`. */
-int graph_out_degree(const Graph *g, int v);
-
-/* Restituisce il grado entrante nel nodo `v`. */
-int graph_in_degree(const Graph *g, int v);
-
-/* Stampa il grafo a video */
-void graph_print(const Graph *g);
-
-/* Crea un nuovo grafo leggendone il contenuto dal file `f`. Il file `f`
-   deve essere già stato aperto in lettura. */
-Graph *graph_read_from_file(FILE *f);
-
-/* Salva il grafo `g` sul file `f`, con lo stesso formato usato dalla
-   funzione `graph_read_from_file()`. Il file `f` deve essere già
-   stato aperto in scrittura. */
-void graph_write_to_file(FILE *f, const Graph *g);
-
-/* Codice inerente alla struttura MinHeap */
-
-/* Crea uno heap vuoto in grado di contenere al più `size` coppie
-   (chiave, priorità); le chiavi possono essere esclusivamente gli
-   interi 0 .. `size` - 1; ogni chiave può essere presente nello heap
-   al più una volta. Inizialmente lo heap è vuoto.
-
-   Precondizione: size > 0 */
-MinHeap *minheap_create(int size);
-
-void init_pos(MinHeap *h, int size);
-
-/* Svuota lo heap */
-void minheap_clear(MinHeap *h);
-
-/* Dealloca la memoria occupata dallo heap h e dal suo contenuto */
-void minheap_destroy(MinHeap *h);
-
-/* Restituisce 1 se e solo se lo heap è vuoto */
-int minheap_is_empty(const MinHeap *h);
-
-/* Restituisce 1 se e solo se lo heap è pieno */
-int minheap_is_full(const MinHeap *h);
-
-/* Ritorna il numero di elementi effettivamente presenti nello heap */
-int minheap_get_n(const MinHeap *h);
-
-/* Restituisce la chiave associata alla minima priorità; non modifica
-   lo heap */
-int minheap_min(const MinHeap *h);
-
-/* Inserisce una nuova chiave `key` con priorità `prio`.
-
-   Precondizioni:
-   - `key` deve essere una chiave valida;
-   - `key` non deve essere già presente nello heap;
-   - Lo heap non deve essere pieno. */
-void minheap_insert(MinHeap *h, int key, double prio);
-
-/* Rimuove dallo heap la coppia (chiave, prio) con priorità minima, e
-   restituisce la chiave di tale coppia.
-
-   Precondizione: lo heap non deve essere vuoto. */
-int minheap_delete_min(MinHeap *h);
-
-/* Modifica la priorità associata alla chiave `key`.
-
-   Precondizione: la chiave `key` deve essere presente nello heap. */
-void minheap_change_prio(MinHeap *h, int key, double new_prio);
-
-/* Stampa il contenuto dello heap */
-void minheap_print(const MinHeap *h);
-
-Graph *graph_create( int n, Graph_type t ) {
-    int i;
-    Graph *g = (Graph*)malloc(sizeof(*g));
-    assert(g != NULL);
-    assert(n > 0);
-
-    g->n = n;
-    g->m = 0;
-    g->t = t;
-    g->edges = (Edge**)malloc(n * sizeof(Edge*));
-    assert(g->edges != NULL);
-    g->in_deg = (int*)malloc(n * sizeof(*(g->in_deg)));
-    assert(g->in_deg != NULL);
-    g->out_deg = (int*)malloc(n * sizeof(*(g->out_deg)));
-    assert(g->out_deg != NULL);
-    for (i=0; i<n; i++) {
-        g->edges[i] = NULL;
-        g->in_deg[i] = g->out_deg[i] = 0;
-    }
-    return g;
-}
-
-void graph_destroy(Graph *g) {
-    int i;
-
-    assert(g != NULL);
-
-    for (i = 0; i < g->n; i++) {
-        Edge *edge = g->edges[i];
-        while (edge != NULL) {
-            Edge *next = edge->next;
-            free(edge);
-            edge = next;
-        }
-        g->edges[i] = NULL;
-    }
-    free(g->edges);
-    free(g->in_deg);
-    free(g->out_deg);
-    g->n = 0;
-    g->edges = NULL;
-    free(g);
-}
-
-Graph_type graph_type(const Graph *g) {
-    return g->t;
-}
-
-Edge *create_edge(int src, int dst, double weight) {
-    Edge *edge = (Edge *)malloc(sizeof(*edge));
-    assert(edge != NULL);
-
-    edge->src = src;
-    edge->dst = dst;
-    edge->weight = weight;
-
-    return edge;
-}
-
-void graph_directed_add_edge(Graph *g, int src, int dst, double weight) {
-    Edge *new_edge = create_edge(src, dst, weight);
-    new_edge->next = g->edges[src];
-    g->edges[src] = new_edge;
-
-    g->in_deg[dst]++;
-    g->out_deg[src]++;
-
-    g->m++;
-}
-
-void graph_undirected_add_edge(Graph *g, int src, int dst, double weight) {
-    Edge *new_edge = create_edge(src, dst, weight);
-    new_edge->next = g->edges[src];
-    g->edges[src]->next = new_edge;
-    
-    new_edge = create_edge(dst, src, weight);
-    new_edge->next = g->edges[dst];
-    g->edges[dst]->next = new_edge;
-
-    g->in_deg[src]++;
-    g->out_deg[src]++;
-    g->in_deg[dst]++;
-    g->out_deg[dst]++;
-
-    g->m++;
-}
-
-void graph_add_edge(Graph *g, int src, int dst, double weight) {
-    assert((src >= 0) && (src < graph_n_nodes(g)));
-    assert((dst >= 0) && (dst < graph_n_nodes(g)));
-
-    if (graph_type(g) == GRAPH_DIRECTED) {
-        graph_directed_add_edge(g, src, dst, weight);
-    } else {
-        graph_undirected_add_edge(g, src, dst, weight);
-    }
-}
-
-/* Funzione ricorsiva ausiliaria che rimuove l'arco che porta al nodo
-   `dst` dalla lista di adiacenza `adj`. Se tale arco non è presente,
-   non fa nulla. Ritorna la testa della lista modificata. Al termine
-   pone `*deleted = 1` se l'arco è stato rimosso. */
-static Edge *graph_adj_remove(Edge *adj, int dst, int *deleted) {
-    /* Questo è l'algoritmo ricorsivo standard per la rimozione da una
-       lista concatenata singola. */
-    if (adj == NULL) { /* caso base 1: lista vuota */
-        *deleted = 0;
-        return adj;
-    } else if (adj->dst == dst) { /* caso base 2: il nodo da cancellare è il primo della lista. */
-        Edge *result = adj->next;
-        free(adj);
-        *deleted = 1;
-        return result;
-    } else { /* caso ricorsivo */
-        adj->next = graph_adj_remove(adj->next, dst, deleted);
-        return adj;
-    }
-}
-
-void graph_del_edge(Graph *g, int src, int dst) {
-    int del_srcdst, del_dstsrc;
-
-    assert((src >= 0) && (src < graph_n_nodes(g)));
-    assert((dst >= 0) && (dst < graph_n_nodes(g)));
-
-    /* Rimuovi l'arco src -> dst. */
-    g->edges[src] = graph_adj_remove(g->edges[src], dst, &del_srcdst);
-    if (del_srcdst) {
-        g->out_deg[src]--;
-        g->in_deg[dst]--;
-        g->m--;
-    }
-    if (g->t == GRAPH_UNDIRECTED) {
-        /* Rimuovi l'arco dst -> src. */
-        g->edges[dst] = graph_adj_remove(g->edges[dst], src, &del_dstsrc);
-        /* L'asserzione seguente serve per assicurarsi che l'arco
-           dst->src venga cancellato se e solo se src->dst lo è.
-           Infatti, in un grafo non orientato ogni arco viene
-           rappresentato dalla coppia src->dst e dst->src. Pertanto,
-           se esiste l'arco "di andata" ma non quello "di ritorno" (o
-           viceversa), il grafo non è stato costruito correttamente e
-           il programma deve essere abortito. */
-        assert(del_srcdst == del_dstsrc);
-        if (del_dstsrc) {
-            g->out_deg[dst]--;
-            g->in_deg[src]--;
-            /* Non bisogna decrementare g->m due volte. */
-        }
-    }
-}
-
-int graph_n_nodes(const Graph *g) {
-    assert(g != NULL);
-
-    return g->n;
-}
-
-int graph_n_edges(const Graph *g) {
-    assert(g != NULL);
-
-    return g->m;
-}
-
-int graph_out_degree(const Graph *g, int v) {
-    assert(g != NULL);
-    assert((v >= 0) && (v < graph_n_nodes(g)));
-    return g->out_deg[v];
-}
-
-int graph_in_degree(const Graph *g, int v) {
-    assert(g != NULL);
-    assert((v >= 0) && (v < graph_n_nodes(g)));
-    return g->in_deg[v];
-}
-
-Edge *graph_adj(const Graph *g, int v) {
-    assert(g != NULL);
-    assert((v >= 0) && (v < graph_n_nodes(g)));
-
-    return g->edges[v];
-}
-
-void graph_print(const Graph *g) {
-    int i;
-
-    assert(g != NULL);
-
-    if (graph_type(g) == GRAPH_UNDIRECTED) {
-        printf("UNDIRECTED\n");
-    } else {
-        printf("DIRECTED\n");
-    }
-
-    for (i=0; i<g->n; i++) {
-        const Edge *e;
-        int out_deg = 0; /* ne approfittiamo per controllare la
-                            correttezza dei gradi uscenti */
-        printf("[%2d] -> ", i);
-        for (e = graph_adj(g, i); e != NULL; e = e->next) {
-            printf("(%d, %d, %f) -> ", e->src, e->dst, e->weight);
-            out_deg++;
-        }
-        assert(out_deg == graph_out_degree(g, i));
-        printf("NULL\n");
-    }
-}
-
-Graph *graph_read_from_file(FILE *f) {
-    int n, m, t;
-    int src, dst;
-    int i; /* numero archi letti dal file */
-    double weight;
-    Graph *g;
-
-    assert(f != NULL);
-
-    if (3 != fscanf(f, "%d %d %d", &n, &m, &t)) {
-        fprintf(stderr, "ERRORE durante la lettura dell'intestazione del grafo\n");
-        abort();
-    };
-    assert( n > 0 );
-    assert( m >= 0 );
-    assert( (t == GRAPH_UNDIRECTED) || (t == GRAPH_DIRECTED) );
-
-    g = graph_create(n, t);
-    /* Ciclo di lettura degli archi. Per rendere il programma più
-       robusto, meglio non fidarsi del valore `m` nell'intestazione
-       dell'input. Leggiamo informazioni sugli archi fino a quando ne
-       troviamo, e poi controlliamo che il numero di archi letti (i)
-       sia uguale a quello dichiarato (m) */
-    i = 0;
-    while (3 == fscanf(f, "%d %d %lf", &src, &dst, &weight)) {
-        graph_add_edge(g, src, dst, weight);
-        i++;
-    }
-    if (i != m) {
-        fprintf(stderr, "WARNING: ho letto %d archi, ma l'intestazione ne dichiara %d\n", i, m);
-    }
-    /*
-    fprintf(stderr, "INFO: Letto grafo %s con %d nodi e %d archi\n",
-            (t == GRAPH_UNDIRECTED) ? "non orientato" : "orientato",
-            n,
-            m);
-    */
-    return g;
-}
-
-void graph_write_to_file( FILE *f, const Graph* g ) {
-    int v;
-    int n, m, t;
-
-    assert(g != NULL);
-    assert(f != NULL);
-
-    n = graph_n_nodes(g);
-    m = graph_n_edges(g);
-    t = graph_type(g);
-
-    fprintf(f, "%d %d %d\n", n, m, t);
-    for (v=0; v<n; v++) {
-        const Edge *e;
-        for (e = graph_adj(g, v); e != NULL; e = e->next) {
-            assert(e->src == v);
-            /* Se il grafo è non orientato, dobbiamo ricordarci che
-               gli archi compaiono due volte nelle liste di
-               adiacenza. Nel file pero' dobbiamo riportare ogni arco
-               una sola volta, dato che sarà la procedura di lettura a
-               creare le liste di adiacenza in modo corretto. Quindi,
-               ogni coppia di archi (u,v), (v,u) deve comparire una
-               sola volta nel file. Per comodità, salviamo nel file la
-               versione di ciascun arco in cui il nodo sorgente è
-               minore del nodo destinazione. */
-            if ((graph_type(g) == GRAPH_DIRECTED) || (e->src < e->dst)) {
-                fprintf(f, "%d %d %f\n", e->src, e->dst, e->weight);
-            }
-        }
-    }
-}
-
-void minheap_print(const MinHeap *h) {
-    int i, j, width = 1;
-
-    assert(h != NULL);
-
-    printf("\n** Contenuto dello heap:\n\n");
-    printf("n=%d size=%d\n", h->n, h->size);
-    printf("Contenuto dell'array heap[] (stampato a livelli):\n");
-    i = 0;
-    while (i < h->n) {
-        j = 0;
-        while (j<width && i < h->n) {
-            printf("h[%2d]=(%2d, %6.2f) ", i, h->heap[i].key, h->heap[i].prio);
-            i++;
-            j++;
-        }
-        printf("\n");
-        width *= 2;
-    }
-    printf("\nContenuto dell'array pos[]:\n");
-    for (i=0; i<h->size; i++) {
-        printf("pos[%d]=%d ", i, h->pos[i]);
-    }
-    printf("\n\n** Fine contenuto dello heap\n\n");
-}
-
-void minheap_clear( MinHeap *h ) {
-    int i;
-    assert(h != NULL);
-    for (i=0; i<h->size; i++) {
-        h->pos[i] = -1;
-    }
-    h->n = 0;
-}
-
-/* Costruisce un min-heap vuoto che può contenere al massimo
-   `size` elementi */
-MinHeap *minheap_create(int size) {
-    MinHeap *h = (MinHeap*)malloc(sizeof(*h));
-    assert(h != NULL);
-    assert(size > 0);
-
-    h->size = size;
-    h->heap = (HeapElem*)malloc(size * sizeof(*(h->heap)));
-    assert(h->heap != NULL);
-    h->pos = (int*)malloc(size * sizeof(*(h->pos)));
-    assert(h->pos != NULL);
-    minheap_clear(h);
-    return h;
-}
-
-void minheap_destroy( MinHeap *h ) {
-    assert(h != NULL);
-
-    h->n = h->size = 0;
-    free(h->heap);
-    free(h->pos);
-    free(h);
-}
-
-/* Funzione di supporto: restituisce 1 sse l'indice `i` appartiene
-   all'intervallo degli indici validi degli elementi validi nell'array
-   che rappresenta lo heap. */
-static int valid(const MinHeap *h, int i) {
+typedef struct Cell {
+    double height;
+    double adj[DIRECTIONS];
+} Cell;
+
+typedef struct Graph {
+    unsigned int n, m; /* Numero di righe e colonne della matrice */
+    unsigned int c_cell; /* Costo di ogni cella */
+    unsigned int c_height; /* Costo di ogni altezza */
+    Cell **cells;
+} Graph;
+
+/* Funzioni per il minheap */
+int valid(const MinHeap *h, int i) {
     assert(h != NULL);
 
     return ((i >= 0) && (i < h->n));
 }
 
 /* Funzione di supporto: scambia heap[i] con heap[j] */
-static void swap(MinHeap *h, int i, int j) {
+void swap(MinHeap *h, int i, int j) {
     HeapElem tmp;
 
     assert(h != NULL);
@@ -524,7 +87,7 @@ static void swap(MinHeap *h, int i, int j) {
 }
 
 /* Funzione di supporto: restituisce l'indice del padre del nodo i */
-static int parent(const MinHeap *h, int i) {
+int parent(const MinHeap *h, int i) {
     assert(valid(h, i));
 
     return (i+1)/2 - 1;
@@ -533,7 +96,7 @@ static int parent(const MinHeap *h, int i) {
 /* Funzione di supporto: restituisce l'indice del figlio sinistro del
    nodo `i`. Ritorna un indice non valido se `i` non ha figlio
    sinistro. */
-static int lchild(const MinHeap *h, int i) {
+int lchild(const MinHeap *h, int i) {
     assert(valid(h, i));
 
     return 2*i + 1;
@@ -542,7 +105,7 @@ static int lchild(const MinHeap *h, int i) {
 /* Funzione di supporto: restituisce l'indice del figlio destro del
    nodo `i`. Ritorna un indice non valido se `i` non ha figlio
    destro. */
-static int rchild(const MinHeap *h, int i) {
+int rchild(const MinHeap *h, int i) {
     assert(valid(h, i));
 
     return 2*i + 2;
@@ -550,7 +113,7 @@ static int rchild(const MinHeap *h, int i) {
 
 /* Funzione di supporto: restituisce l'indice del figlio di `i` con
    priorità minima. Se `i` non ha figli, restituisce -1 */
-static int min_child(const MinHeap *h, int i) {
+int min_child(const MinHeap *h, int i) {
     int l, r, result = -1;
 
     assert(valid(h, i));
@@ -568,7 +131,7 @@ static int min_child(const MinHeap *h, int i) {
 
 /* Funzione di supporto: scambia l'elemento in posizione `i` con il
    padre fino a quando raggiunge la posizione corretta nello heap */
-static void move_up(MinHeap *h, int i) {
+void move_up(MinHeap *h, int i) {
     int p;
 
     assert(valid(h, i));
@@ -584,7 +147,7 @@ static void move_up(MinHeap *h, int i) {
 /* Funzione di supporto: scambia l'elemento in posizione `i` con il
    figlio avente priorità minima, fino a quando l'elemento raggiunge
    la posizione corretta. */
-static void move_down(MinHeap *h, int i) {
+void move_down(MinHeap *h, int i) {
     int done = 0;
 
     assert(valid(h, i));
@@ -610,92 +173,9 @@ int minheap_is_empty(const MinHeap *h) {
     return (h->n == 0);
 }
 
-/* Restituisce true (nonzero) se lo heap è pieno, cioè è stata
-   esaurita la capienza a disposizione */
-int minheap_is_full(const MinHeap *h) {
-    assert(h != NULL);
-
-    return (h->n == h->size);
-}
-
-/* Restituisce il numero di elementi presenti nello heap */
-int minheap_get_n(const MinHeap *h) {
-    assert(h != NULL);
-
-    return h->n;
-}
-
-/* Restituisce la chiave associata alla priorità minima */
-int minheap_min(const MinHeap *h) {
-    assert( !minheap_is_empty(h) );
-
-    return h->heap[0].key;
-}
-
-/* Come minheap_min(), ma restituisce la coppia (chiave, prio); questa
-   funzione verrà utilizzata in future edizioni del corso al posto di
-   minheap_min(). */
-HeapElem minheap_min2( const MinHeap *h) {
-    assert( !minheap_is_empty(h) );
-
-    return h->heap[0];
-}
-
-/* Inserisce una nuova coppia (key, prio) nello heap. */
-void minheap_insert(MinHeap *h, int key, double prio) {
-    int i;
-
-    assert( !minheap_is_full(h) );
-    assert((key >= 0) && (key < h->size));
-    assert(h->pos[key] == -1);
-
-    i = h->n++;
-    h->pos[key] = i;
-    h->heap[i].key = key;
-    h->heap[i].prio = prio;
-    move_up(h, i);
-}
-
-/* Rimuove la coppia (chiave, priorità) con priorità minima;
-   restituisce la chiave associata alla priorità minima. */
-int minheap_delete_min(MinHeap *h) {
-    int result;
-
-    assert( !minheap_is_empty(h) );
-
-    result = minheap_min(h);
-    swap(h, 0, h->n-1);
-    assert( h->heap[h->n - 1].key == result );
-    h->pos[result] = -1;
-    h->n--;
-    if (!minheap_is_empty(h)) {
-        move_down(h, 0);
-    }
-    return result;
-}
-
-/* Come minheap_delete_min(), ma restituisce la coppia (chiave, prio);
-   questa funzione verrà utilizzata al posto di minheap_delete_min()
-   in future edizioni del corso. */
-HeapElem minheap_delete_min2(MinHeap *h) {
-    HeapElem result;
-
-    assert( !minheap_is_empty(h) );
-
-    result = minheap_min2(h);
-    swap(h, 0, h->n-1);
-    assert( h->heap[h->n - 1].key == result.key );
-    h->pos[result.key] = -1;
-    h->n--;
-    if (!minheap_is_empty(h)) {
-        move_down(h, 0);
-    }
-    return result;
-}
-
 /* Modifica la priorità associata alla chiave key. La nuova priorità
    può essere maggiore, minore o uguale alla precedente. */
-void minheap_change_prio(MinHeap *h, int key, double newprio) {
+void minheap_change_prio(MinHeap *h, int key, Coord cell, double newprio) {
     int j;
     double oldprio;
 
@@ -712,8 +192,408 @@ void minheap_change_prio(MinHeap *h, int key, double newprio) {
     }
 }
 
-int main(int argc, char **argv) {
+void minheap_clear(MinHeap *h) {
+    int i;
+    assert(h != NULL);
+    for (i=0; i<h->size; i++) {
+        h->pos[i] = -1;
+    }
+    h->n = 0;
+}
 
+/* Costruisce un min-heap vuoto che può contenere al massimo
+   `size` elementi */
+MinHeap *minheap_create(int size) {
+    MinHeap *h = (MinHeap *)malloc(sizeof(MinHeap));
+    assert(h != NULL);
+    assert(size > 0);
+
+    h->size = size;
+    h->heap = (HeapElem *)malloc(size * sizeof(HeapElem));
+    assert(h->heap != NULL);
+    h->pos = (int *)malloc(size * sizeof(int));
+    assert(h->pos != NULL);
+    minheap_clear(h);
+    return h;
+}
+
+/* Restituisce true (nonzero) se lo heap è pieno, cioè è stata
+   esaurita la capienza a disposizione */
+int minheap_is_full(const MinHeap *h) {
+    assert(h != NULL);
+
+    return (h->n == h->size);
+}
+
+/* Inserisce una nuova coppia (key, prio) nello heap. */
+void minheap_insert(MinHeap *h, int key, Coord cell, double prio) {
+    int i;
+
+    assert( !minheap_is_full(h) );
+    assert((key >= 0) && (key < h->size));
+    assert(h->pos[key] == -1);
+
+    i = h->n++;
+    h->pos[key] = i;
+    h->heap[i].key = key;
+    h->heap[i].cell = cell;
+    h->heap[i].prio = prio;
+    move_up(h, i);
+}
+
+/* Restituisce l'elemento con priorità minima */
+HeapElem minheap_min(const MinHeap *h) {
+    assert( !minheap_is_empty(h) );
+
+    return h->heap[0];
+}
+
+/* Rimuove la coppia (chiave, priorità) con priorità minima;
+   restituisce l'elemento con priorità minima. */
+HeapElem minheap_delete_min(MinHeap *h) {
+    HeapElem result;
+    int key;
+
+    assert( !minheap_is_empty(h) );
+
+    result = minheap_min(h);
+    key = result.key;
+    swap(h, 0, h->n-1);
+    assert( h->heap[h->n - 1].key == key );
+    h->pos[key] = -1;
+    h->n--;
+    if (!minheap_is_empty(h)) {
+        move_down(h, 0);
+    }
+    return result;
+}
+
+void minheap_destroy(MinHeap *h) {
+    assert(h != NULL);
+
+    h->n = h->size = 0;
+    free(h->heap);
+    free(h->pos);
+    free(h);
+}
+
+/* Libera dalla memoria tutti dati allocati all'interno del grafo */
+void graph_destroy(Graph *g) {
+    int i;
+    for (i = 0; i < g->n; i++) {
+        free(g->cells[i]);
+    }
+    free(g->cells);
+    free(g);
+}
+
+/* Funzione per stampare i dati di un grafo */
+void graph_print(Graph *g) {
+    int i, j;
+
+    for (i = 0; i < g->n; i++) {
+        for (j = 0; j < g->m; j++) {
+            int cell = g->cells[i][j].height;
+            printf("%d ", cell);
+        }
+        printf("\n");
+    }
+}
+
+/* Funzione per ottenere la cella adiacente nella direzione scelta */
+double graph_adj(Graph *g, int x, int y, int dir) {
+    return g->cells[y][x].adj[dir];
+}
+
+Cell *graph_at(Graph *g, int x, int y) {
+    return &g->cells[y][x];
+}
+
+/* In base alla direzione cambio le coordinate della cella e ritorno
+ * le coordinate della cella adiacente nella seguente direzione
+ */
+Coord graph_adj_coord(Coord cell, int dir) {
+    switch (dir) {
+    case UP:
+        cell.y--;
+        break;
+    case DOWN:
+        cell.y++;
+        break;
+    case LEFT:
+        cell.x--;
+        break;
+    case RIGHT:
+        cell.x++;
+        break;
+    }
+    return cell;
+}
+
+void relax(Graph *g, MinHeap *h, Edge *e, double *d, Coord *p) {
+    unsigned int n = g->n;
+
+    /* Ottengo il peso di entrambe le celle e calcolo la distanza */
+    int u = e->src.y * n + e->src.x;
+    int v = e->dst.y * n + e->dst.x;
+    double height = (e->h_src - e->h_dst) * (e->h_src - e->h_dst);
+
+    if (d[u] + height < d[v]) {
+        d[v] = d[u] + height;
+        p[v].x = e->src.x;
+        p[v].y = e->src.y;
+
+        minheap_change_prio(h, v, e->dst, d[v]);
+    }
+}
+
+void dijkstra(Graph *g, double *d, Coord *p) {
+    int x, y, v, dir;
+    unsigned int n, m, size;
+    MinHeap *h;
+    n = g->n;
+    m = g->m;
+    size = n * m;
+    h = minheap_create(size);
+
+    /* Inizializzo i vettori distanza e predecessore, la distanza
+       dalla sorgente, che sarà sempre il primo nodo, è 0 */
+    for (v = 0; v < size; v++) {
+        d[v] = HUGE_VAL;
+        p[v].x = NODE_UNDEF;
+        p[v].y = NODE_UNDEF;
+    }
+    d[0] = 0.0;
+
+    /* Riempio l'heap con tutti i nodi */
+    for (y = 0; y < n; y++) {
+        for (x = 0; x < m; x++) {
+            int key = y * n + x;
+            Coord cell;
+            cell.x = x;
+            cell.y = y;
+            minheap_insert(h, key, cell, d[key]);
+        }
+    }
+
+    /* Scorro l'heap finché non è vuoto, estraggo ogni volta l'arco più 
+       piccolo del nodo attuale e lo rilasso */
+    while (!minheap_is_empty(h)) {
+        HeapElem min = minheap_delete_min(h);
+        Coord src_coord = min.cell;
+
+        for (dir = 0; dir < DIRECTIONS; dir++) {
+            /* Ottengo le celle della sorgente e della destinazione
+               tramite le adiacenza della sorgente nella direzione passata */
+            double src = graph_at(g, src_coord.x, src_coord.y)->height;
+            double dst = graph_adj(g, src_coord.x, src_coord.y, dir);
+
+            /* Se in questa direzione la cella è fuori dalla matrice
+               non rilassa nulla */
+            if (dst != NODE_UNDEF) {
+                Coord dst_coord = graph_adj_coord(src_coord, dir);
+                Edge e;
+                e.h_src = src;
+                e.h_dst = dst;
+                e.src = src_coord;
+                e.dst = dst_coord;
+                
+                relax(g, h, &e, d, p);
+            }
+        }
+    }
+
+    minheap_destroy(h);
+}
+
+/* Prende le celle degli estremi della matrice e assegna
+ * un valore invalido poiché non ha adiacenze oltre i contorni 
+ */
+void border_adj(Graph *g, int x, int y) {
+    Cell *cell = graph_at(g, x, y);
+
+    if (y == 0) { /* Prima riga */
+        cell->adj[UP] = NODE_UNDEF;
+    } else if (y == g->n - 1) { /* Ultima riga */
+        cell->adj[DOWN] = NODE_UNDEF;
+    }
+
+    if (x == 0) { /* Prima colonna */
+        cell->adj[LEFT] = NODE_UNDEF;
+    } else if (x == g->m - 1) { /* Ultima colonna */
+        cell->adj[RIGHT] = NODE_UNDEF;
+    }
+}
+
+/* Prende come input il grafo e crea i vettori dove sono
+ * contenuti i dettagli sulle celle adiacenti, gestendo anche
+ * i contorni della matrice dove non ci sono adiacenze
+ */
+void create_adj(Graph *g) {
+    int x, y;
+    Cell *cell;
+
+    for (y = 0; y < g->n; y++) {
+        for (x = 0; x < g->m; x++) {
+            border_adj(g, x, y);
+
+            /* Gestisce i casi in cui le adiacenze esistono e salvo il valore
+               delle celle adiacenti in un array e l'indice indica la direzione
+               della cella adiacente */
+            cell = graph_at(g, x, y);
+            if (y > 0) {
+                cell->adj[UP] = graph_at(g, x, y - 1)->height;
+            }
+            if (y < g->n - 1) {
+                cell->adj[DOWN] = graph_at(g, x, y + 1)->height;
+            }
+            if (x > 0) {
+                cell->adj[LEFT] = graph_at(g, x - 1, y)->height;
+            }
+            if (x < g->m - 1) {
+                cell->adj[RIGHT] = graph_at(g, x + 1, y)->height;
+            }
+        }
+    }
+}
+
+/* Funzione di supporto per leggere un parametro intero del file */
+void read_double(FILE *f, double *ptr) {
+    if (fscanf(f, "%lf", ptr) != 1) {
+        fprintf(stderr, "Errore durante la lettura del file\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Funzione di supporto per leggere un parametro intero senza segno del file */
+void read_uint(FILE *f, unsigned int *ptr) {
+    if (fscanf(f, "%u", ptr) != 1) {
+        fprintf(stderr, "Errore durante la lettura del file\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+/* Prende il file in input e salva il contenuto nella
+ * matrice contenuta nella struttura grafo, restituendola
+ */
+Graph *graph_read_from_file(FILE *f) {
+    Graph *g;
+    int i, j;
+    unsigned int c_cell, c_height;
+    unsigned int n, m;
+
+    /* Legge le prime 4 */
+    read_uint(f, &c_cell);
+    read_uint(f, &c_height);
+    read_uint(f, &n);
+    read_uint(f, &m);
+
+    assert(n >= 5 || n <= 250);
+    assert(m >= 5 || m <= 250);
+
+    g = (Graph *)malloc(sizeof(Graph));
+    assert(g != NULL);
+    g->n = n;
+    g->m = m;
+    g->c_cell = c_cell;
+    g->c_height = c_height;
+
+    /* Creo una matrice di celle dinamicamente allocando
+     * in ogni riga un array di dimensione m
+     */
+    g->cells = (Cell **)malloc(sizeof(Cell *) * n);
+    assert(g->cells != NULL);
+    for (i = 0; i < n; i++) {
+        g->cells[i] = (Cell *)malloc(sizeof(Cell) * m);
+        assert(g->cells[i] != NULL);
+    }
+
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < m; j++) {
+            read_double(f, &(g->cells[i][j].height));
+        }
+    }
+
+    return g;
+}
+
+void print_path(const Coord *p, Coord dst, unsigned int n, unsigned int size)
+{
+    int key = dst.y * n + dst.x;
+    if (key < 0) {
+        printf("Non raggiungibile");
+    } else if (key == 0) {
+        printf("0 0\n");
+    } else {
+        print_path(p, p[key], n, size);
+
+        printf("%d %d\n", dst.x, dst.y);
+
+        if (key == size - 1) {
+            printf("-1 -1\n");
+        } 
+    }
+}
+
+double road_total_cost(Graph *g, double *d, Coord *p, int k) {
+    int i;
+    double init_cost;
+    double total_distance;
+    int key = 0;
+
+    init_cost = g->c_cell * k;
+    total_distance = 0;
+    for (i = 0; i < k - 1; i++) {
+        /*int key = p[i].y * g->n + p[i].x;
+        total_distance += d[key];*/
+    }
+    total_distance *= g->c_height;
+
+    return init_cost + total_distance;
+}
+
+int main(int argc, char **argv) {
+    Graph *g;
+    double *d;       /* d[v] è la distanza minima dalla sorgente al
+                        nodo v */
+    Coord *p;          /* p[v] è il predecessore di v lungo il cammino
+                        minimo dalla sorgente a v */
+    unsigned int size;
+    double road_cost;
+    Coord dst;
+    FILE *filein;
+    
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s filename\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    filein = fopen(argv[1], "r");
+    if (filein == NULL) {
+        fprintf(stderr, "Can not open %s\n", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    g = graph_read_from_file(filein);
+    create_adj(g);
+
+    size = g->n * g->m;
+    d = (double *)malloc(size * sizeof(double)); assert(d != NULL);
+    p = (Coord *)malloc(size * sizeof(Coord)); assert(p != NULL);
+
+    dijkstra(g, d, p);
+    /*graph_print(g);*/
+    dst.x = g->n - 1;
+    dst.y = g->m - 1;
+    print_path(p, dst, g->n, size);
+
+    road_cost = road_total_cost(g, d, p, size);
+    printf("%.f\n", road_cost);
+
+    free(p);
+    free(d);
+    graph_destroy(g);
+    fclose(filein);
 
     return EXIT_SUCCESS;
 }
