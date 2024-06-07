@@ -182,6 +182,7 @@ void minheap_change_prio(MinHeap *h, int key, Coord cell, double newprio) {
     assert(h != NULL);
     assert(key >= 0 && key < h->size);
     j = h->pos[key];
+
     assert( valid(h, j) );
     oldprio = h->heap[j].prio;
     h->heap[j].prio = newprio;
@@ -337,17 +338,16 @@ void relax(Graph *g, MinHeap *h, Edge *e, double *d, Coord *p) {
     int u = e->src.y * m + e->src.x;
     int v = e->dst.y * m + e->dst.x;
     double height;
-
-    int k = 0;
     Coord dst;
     int key;
+    int k = 0;
 
     dst.x = g->m - 1;
     dst.y = g->n - 1;
     key = dst.y * g->m + dst.x;
     while (key >= 0) {
-        k++;
         key = p[key].y * g->m + p[key].x;
+        k++;
     }
     height = g->c_cell * k + g->c_height * (e->h_src - e->h_dst) * (e->h_src - e->h_dst);
 
@@ -541,7 +541,6 @@ void print_path(const Coord *p, Coord dst, unsigned int m, unsigned int size)
         print_path(p, p[key], m, size);
 
         printf("%d %d\n", dst.y, dst.x);
-
         if (key == size - 1) {
             printf("-1 -1\n");
         } 
@@ -549,19 +548,55 @@ void print_path(const Coord *p, Coord dst, unsigned int m, unsigned int size)
 }
 
 double road_total_cost(Graph *g, double *d, Coord *p) {
-    int k = 0;
-    double init_cost;
+    /*double init_cost;
     double total_distance;
     Coord dst;
     int key;
+    int k = 0;
 
     dst.x = g->m - 1;
     dst.y = g->n - 1;
     key = dst.y * g->m + dst.x;
 
-    total_distance = d[key];
+    total_distance = g->c_height * d[key];
+    while (key >= 0) {
+        key = p[key].y * g->m + p[key].x;
+        k++;
+    }
+    init_cost = g->c_cell * k;
 
-    return total_distance;
+    return init_cost + total_distance;*/
+    
+    int key;
+    Coord dst;
+    dst.x = g->m - 1;
+    dst.y = g->n - 1;
+    key = dst.y * g->m + dst.x;
+    return d[key];
+}
+
+void print_matrix(const Graph *g, Coord *p, double *d) {
+    int last_key;
+    int key;
+    int x, y;
+
+    last_key = g->m * g->n - 1;
+    for (y = g->n - 1; y >= 0; y--) {
+        for (x = g->m - 1; x >= 0; x--) {
+            key = y * g->m + x;
+            if (last_key == p[key].y * g->m + p[key].x) {
+                printf("\033[31m");
+            }
+
+            printf("%7.f ", d[y * g->m + x]);
+
+            if (last_key == p[key].y * g->m + p[key].x) {
+                printf("\033[m");
+            }
+            last_key = key;
+        }
+        puts("");
+    }
 }
 
 int main(int argc, char **argv) {
@@ -597,7 +632,8 @@ int main(int argc, char **argv) {
     /*graph_print(g);*/
     dst.x = g->m - 1;
     dst.y = g->n - 1;
-    print_path(p, dst, g->m, size);
+    /*print_path(p, dst, g->m, size);*/
+    print_matrix(g, p, d);
 
     road_cost = road_total_cost(g, d, p);
     printf("%.f\n", road_cost);
