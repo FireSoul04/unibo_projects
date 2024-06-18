@@ -14,54 +14,68 @@
 #include <assert.h>
 
 #define NODE_UNDEF -1
-#define DIRECTIONS 4
-
-/* Invece di implementare il grafo con matrici di adiacenza, ho strutturato
- * un vettore di lunghezza 4 per ogni cella della matrice, dove ogni elemento
- * contiene l'altezza delle celle adiacenti nelle rispettive direzioni, indicate
- * dall'enum Direction qui sotto */
-typedef enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-} Direction;
-
-typedef struct Coord {
-    int x, y;
-} Coord;
-
-typedef struct Edge {
-    Coord src, dst;
-    double h_src, h_dst;
-} Edge;
 
 typedef struct {
     int key;
-    Coord cell;
     double prio;
 } HeapElem;
 
 typedef struct {
     HeapElem *heap;
-    int *pos; /* Utilizzato per ottimizzare l'heap */
-    int n; /* Numero di coppie (chiave, prio) presenti nell'heap */
-    int size; /* Massimo numero di coppie (chiave, prio) che possono essere contenuti nell'heap */
+    int *pos;
+    int n;
+    int size;
 } MinHeap;
 
-typedef struct Cell {
-    double height;
-    double adj[DIRECTIONS];
-} Cell;
+typedef struct Edge {
+    int src;
+    int dst;
+    double weight;
+    struct Edge *next;
+} Edge;
 
-typedef struct Graph {
-    unsigned int n, m; /* Numero di righe e colonne della matrice */
-    unsigned int c_cell; /* Costo di ogni cella */
-    unsigned int c_height; /* Costo di ogni altezza */
-    Cell **cells;
+typedef struct {
+    unsigned int n;         /* Numero righe matrice */
+    unsigned int m;         /* Numero colonne matrice */
+    unsigned int c_cell;    /* Costo di una cella */
+    unsigned int c_height;  /* Costo per ogni differenza di altezza */
+    Edge **edges;
 } Graph;
 
-/* Funzioni per il minheap */
+void minheap_clear( MinHeap *h ) {
+    int i;
+    assert(h != NULL);
+    for (i=0; i<h->size; i++) {
+        h->pos[i] = -1;
+    }
+    h->n = 0;
+}
+
+/* Costruisce un min-heap vuoto che può contenere al massimo
+   `size` elementi */
+MinHeap *minheap_create(int size) {
+    MinHeap *h = (MinHeap*)malloc(sizeof(*h));
+    assert(h != NULL);
+    assert(size > 0);
+
+    h->size = size;
+    h->heap = (HeapElem*)malloc(size * sizeof(*(h->heap)));
+    assert(h->heap != NULL);
+    h->pos = (int*)malloc(size * sizeof(*(h->pos)));
+    assert(h->pos != NULL);
+    minheap_clear(h);
+    return h;
+}
+
+void minheap_destroy( MinHeap *h ) {
+    assert(h != NULL);
+
+    h->n = h->size = 0;
+    free(h->heap);
+    free(h->pos);
+    free(h);
+}
+
 int valid(const MinHeap *h, int i) {
     assert(h != NULL);
 
@@ -152,9 +166,6 @@ void move_down(MinHeap *h, int i) {
 
     assert(valid(h, i));
 
-    /* L'operazione viene implementata iterativamente, sebbene sia
-       possibile una implementazione ricorsiva probabilmente più
-       leggibile. */
     do {
         const int dst = min_child(h, i);
         if (valid(h, dst) && (h->heap[dst].prio < h->heap[i].prio)) {
@@ -173,16 +184,70 @@ int minheap_is_empty(const MinHeap *h) {
     return (h->n == 0);
 }
 
+/* Restituisce true (nonzero) se lo heap è pieno, cioè è stata
+   esaurita la capienza a disposizione */
+int minheap_is_full(const MinHeap *h) {
+    assert(h != NULL);
+
+    return (h->n == h->size);
+}
+
+/* Restituisce il numero di elementi presenti nello heap */
+int minheap_get_n(const MinHeap *h) {
+    assert(h != NULL);
+
+    return h->n;
+}
+
+/* Restituisce la chiave associata alla priorità minima */
+int minheap_min(const MinHeap *h) {
+    assert( !minheap_is_empty(h) );
+
+    return h->heap[0].key;
+}
+
+/* Inserisce una nuova coppia (key, prio) nello heap. */
+void minheap_insert(MinHeap *h, int key, double prio) {
+    int i;
+
+    assert( !minheap_is_full(h) );
+    assert((key >= 0) && (key < h->size));
+    assert(h->pos[key] == -1);
+
+    i = h->n++;
+    h->pos[key] = i;
+    h->heap[i].key = key;
+    h->heap[i].prio = prio;
+    move_up(h, i);
+}
+
+/* Rimuove la coppia (chiave, priorità) con priorità minima;
+   restituisce la chiave associata alla priorità minima. */
+int minheap_delete_min(MinHeap *h) {
+    int result;
+
+    assert( !minheap_is_empty(h) );
+
+    result = minheap_min(h);
+    swap(h, 0, h->n-1);
+    assert( h->heap[h->n - 1].key == result );
+    h->pos[result] = -1;
+    h->n--;
+    if (!minheap_is_empty(h)) {
+        move_down(h, 0);
+    }
+    return result;
+}
+
 /* Modifica la priorità associata alla chiave key. La nuova priorità
    può essere maggiore, minore o uguale alla precedente. */
-void minheap_change_prio(MinHeap *h, int key, Coord cell, double newprio) {
+void minheap_change_prio(MinHeap *h, int key, double newprio) {
     int j;
     double oldprio;
 
     assert(h != NULL);
     assert(key >= 0 && key < h->size);
     j = h->pos[key];
-
     assert( valid(h, j) );
     oldprio = h->heap[j].prio;
     h->heap[j].prio = newprio;
@@ -193,281 +258,119 @@ void minheap_change_prio(MinHeap *h, int key, Coord cell, double newprio) {
     }
 }
 
-void minheap_clear(MinHeap *h) {
+Graph *graph_create( unsigned int n, unsigned int m ) {
     int i;
-    assert(h != NULL);
-    for (i=0; i<h->size; i++) {
-        h->pos[i] = -1;
+    Graph *g = (Graph*)malloc(sizeof(*g));
+    assert(g != NULL);
+
+    g->n = n;
+    g->m = m;
+    g->edges = (Edge**)malloc(n * m * sizeof(Edge*));
+    assert(g->edges != NULL);
+    for (i = 0; i < n * m; i++) {
+        g->edges[i] = NULL;
     }
-    h->n = 0;
+    return g;
 }
 
-/* Costruisce un min-heap vuoto che può contenere al massimo
-   `size` elementi */
-MinHeap *minheap_create(int size) {
-    MinHeap *h = (MinHeap *)malloc(sizeof(MinHeap));
-    assert(h != NULL);
-    assert(size > 0);
-
-    h->size = size;
-    h->heap = (HeapElem *)malloc(size * sizeof(HeapElem));
-    assert(h->heap != NULL);
-    h->pos = (int *)malloc(size * sizeof(int));
-    assert(h->pos != NULL);
-    minheap_clear(h);
-    return h;
-}
-
-/* Restituisce true (nonzero) se lo heap è pieno, cioè è stata
-   esaurita la capienza a disposizione */
-int minheap_is_full(const MinHeap *h) {
-    assert(h != NULL);
-
-    return (h->n == h->size);
-}
-
-/* Inserisce una nuova coppia (key, prio) nello heap. */
-void minheap_insert(MinHeap *h, int key, Coord cell, double prio) {
-    int i;
-
-    assert( !minheap_is_full(h) );
-    assert((key >= 0) && (key < h->size));
-    assert(h->pos[key] == -1);
-
-    i = h->n++;
-    h->pos[key] = i;
-    h->heap[i].key = key;
-    h->heap[i].cell = cell;
-    h->heap[i].prio = prio;
-    move_up(h, i);
-}
-
-/* Restituisce l'elemento con priorità minima */
-HeapElem minheap_min(const MinHeap *h) {
-    assert( !minheap_is_empty(h) );
-
-    return h->heap[0];
-}
-
-/* Rimuove la coppia (chiave, priorità) con priorità minima;
-   restituisce l'elemento con priorità minima. */
-HeapElem minheap_delete_min(MinHeap *h) {
-    HeapElem result;
-    int key;
-
-    assert( !minheap_is_empty(h) );
-
-    result = minheap_min(h);
-    key = result.key;
-    swap(h, 0, h->n-1);
-    assert( h->heap[h->n - 1].key == key );
-    h->pos[key] = -1;
-    h->n--;
-    if (!minheap_is_empty(h)) {
-        move_down(h, 0);
-    }
-    return result;
-}
-
-void minheap_destroy(MinHeap *h) {
-    assert(h != NULL);
-
-    h->n = h->size = 0;
-    free(h->heap);
-    free(h->pos);
-    free(h);
-}
-
-/* Libera dalla memoria tutti dati allocati all'interno del grafo */
 void graph_destroy(Graph *g) {
     int i;
-    for (i = 0; i < g->n; i++) {
-        free(g->cells[i]);
+
+    assert(g != NULL);
+
+    for (i = 0; i < g->n * g->m; i++) {
+        Edge *edge = g->edges[i];
+        while (edge != NULL) {
+            Edge *next = edge->next;
+            free(edge);
+            edge = next;
+        }
     }
-    free(g->cells);
+    free(g->edges);
+    g->n = 0;
+    g->m = 0;
+    g->edges = NULL;
     free(g);
 }
 
-/* Funzione per stampare i dati di un grafo */
-void graph_print(Graph *g) {
-    int i, j;
+int graph_nodes(const Graph *g) {
+    assert(g != NULL);
 
-    for (i = 0; i < g->n; i++) {
-        for (j = 0; j < g->m; j++) {
-            int cell = g->cells[i][j].height;
-            printf("%d ", cell);
-        }
-        printf("\n");
+    return g->n * g->m;
+}
+
+Edge *graph_adj(const Graph *g, int v) {
+    assert(g != NULL);
+    assert((v >= 0) && (v < graph_nodes(g)));
+
+    return g->edges[v];
+}
+
+Edge *create_edge(int src, int dst, double weight) {
+    Edge *edge = (Edge *)malloc(sizeof(*edge));
+    assert(edge != NULL);
+
+    edge->src = src;
+    edge->dst = dst;
+    edge->weight = weight;
+
+    return edge;
+}
+
+void graph_add_edge(Graph *g, int src, int dst, double h_src, double h_dst) {
+    double weight = (h_src - h_dst) * (h_src - h_dst);
+    Edge *new_edge = create_edge(src, dst, weight);
+    new_edge->next = g->edges[src];
+    g->edges[src] = new_edge;
+}
+
+void relax( const Graph *g, const Edge *e, MinHeap *h, double *d, int *p ) {
+    const int u = e->src;
+    const int v = e->dst;
+    const double w = g->c_cell + g->c_height * e->weight;
+    
+    if (d[u] + w < d[v]) {
+        d[v] = d[u] + w;
+        p[v] = u;
+
+        minheap_change_prio(h, v, d[v]);
     }
 }
 
-/* Funzione per ottenere la cella adiacente nella direzione scelta */
-double graph_adj(Graph *g, int x, int y, int dir) {
-    return g->cells[y][x].adj[dir];
-}
+void dijkstra( const Graph *g, double *d, int *p ) {
+    int v, n = graph_nodes(g);
+    MinHeap *h = minheap_create(n);
+    const Edge *e;
 
-Cell *graph_at(Graph *g, int x, int y) {
-    return &g->cells[y][x];
-}
-
-/* In base alla direzione cambio le coordinate della cella e ritorno
- * le coordinate della cella adiacente nella seguente direzione
- */
-Coord graph_adj_coord(Coord cell, int dir) {
-    switch (dir) {
-    case UP:
-        cell.y--;
-        break;
-    case DOWN:
-        cell.y++;
-        break;
-    case LEFT:
-        cell.x--;
-        break;
-    case RIGHT:
-        cell.x++;
-        break;
-    }
-    return cell;
-}
-
-void relax(Graph *g, MinHeap *h, Edge *e, double *d, Coord *p) {
-    unsigned int m = g->m;
-
-    /* Ottengo il peso di entrambe le celle e calcolo la distanza */
-    int u = e->src.y * m + e->src.x;
-    int v = e->dst.y * m + e->dst.x;
-    double height;
-    Coord dst;
-    int key;
-    int k = 0;
-
-    dst.x = g->m - 1;
-    dst.y = g->n - 1;
-    key = dst.y * g->m + dst.x;
-    while (key >= 0) {
-        key = p[key].y * g->m + p[key].x;
-        k++;
-    }
-    height = g->c_cell * k + g->c_height * (e->h_src - e->h_dst) * (e->h_src - e->h_dst);
-
-    if (d[u] + height < d[v]) {
-        d[v] = d[u] + height;
-        p[v].x = e->src.x;
-        p[v].y = e->src.y;
-
-        minheap_change_prio(h, v, e->dst, d[v]);
-    }
-}
-
-void dijkstra(Graph *g, double *d, Coord *p) {
-    int x, y, v, dir;
-    unsigned int n, m, size;
-    MinHeap *h;
-    n = g->n;
-    m = g->m;
-    size = n * m;
-    h = minheap_create(size);
-
-    /* Inizializzo i vettori distanza e predecessore, la distanza
-       dalla sorgente, che sarà sempre il primo nodo, è 0 */
-    for (v = 0; v < size; v++) {
+    for (v = 0; v < n; v++) {
         d[v] = HUGE_VAL;
-        p[v].x = NODE_UNDEF;
-        p[v].y = NODE_UNDEF;
+        p[v] = NODE_UNDEF;
     }
     d[0] = 0.0;
 
     /* Riempio l'heap con tutti i nodi */
-    for (y = 0; y < n; y++) {
-        for (x = 0; x < m; x++) {
-            int key = y * m + x;
-            Coord cell;
-            cell.x = x;
-            cell.y = y;
-            minheap_insert(h, key, cell, d[key]);
-        }
+    for (v = 0; v < n; v++) {
+        minheap_insert(h, v, d[v]);
     }
-
+    
     /* Scorro l'heap finché non è vuoto, estraggo ogni volta l'arco più 
-       piccolo del nodo attuale e lo rilasso */
+        piccolo del nodo attuale e lo rilasso */
     while (!minheap_is_empty(h)) {
-        HeapElem min = minheap_delete_min(h);
-        Coord src_coord = min.cell;
+        v = minheap_delete_min(h);
 
-        for (dir = 0; dir < DIRECTIONS; dir++) {
-            /* Ottengo le celle della sorgente e della destinazione
-               tramite le adiacenza della sorgente nella direzione passata */
-            double src = graph_at(g, src_coord.x, src_coord.y)->height;
-            double dst = graph_adj(g, src_coord.x, src_coord.y, dir);
-
-            /* Se in questa direzione la cella è fuori dalla matrice
-               non rilassa nulla */
-            if (dst != NODE_UNDEF) {
-                Coord dst_coord = graph_adj_coord(src_coord, dir);
-                Edge e;
-                e.h_src = src;
-                e.h_dst = dst;
-                e.src = src_coord;
-                e.dst = dst_coord;
-                
-                relax(g, h, &e, d, p);
-            }
+        for (e = graph_adj(g, v); e != NULL; e = e->next) {
+            relax(g, e, h, d, p);
         }
     }
 
     minheap_destroy(h);
 }
 
-/* Prende le celle degli estremi della matrice e assegna
- * un valore invalido poiché non ha adiacenze oltre i contorni 
- */
-void border_adj(Graph *g, int x, int y) {
-    Cell *cell = graph_at(g, x, y);
-
-    if (y == 0) { /* Prima riga */
-        cell->adj[UP] = NODE_UNDEF;
-    } else if (y == g->n - 1) { /* Ultima riga */
-        cell->adj[DOWN] = NODE_UNDEF;
-    }
-
-    if (x == 0) { /* Prima colonna */
-        cell->adj[LEFT] = NODE_UNDEF;
-    } else if (x == g->m - 1) { /* Ultima colonna */
-        cell->adj[RIGHT] = NODE_UNDEF;
-    }
-}
-
-/* Prende come input il grafo e crea i vettori dove sono
- * contenuti i dettagli sulle celle adiacenti, gestendo anche
- * i contorni della matrice dove non ci sono adiacenze
- */
-void create_adj(Graph *g) {
-    int x, y;
-    Cell *cell;
-
-    for (y = 0; y < g->n; y++) {
-        for (x = 0; x < g->m; x++) {
-            border_adj(g, x, y);
-
-            /* Gestisce i casi in cui le adiacenze esistono e salvo il valore
-               delle celle adiacenti in un array e l'indice indica la direzione
-               della cella adiacente */
-            cell = graph_at(g, x, y);
-            if (y > 0) {
-                cell->adj[UP] = graph_at(g, x, y - 1)->height;
-            }
-            if (y < g->n - 1) {
-                cell->adj[DOWN] = graph_at(g, x, y + 1)->height;
-            }
-            if (x > 0) {
-                cell->adj[LEFT] = graph_at(g, x - 1, y)->height;
-            }
-            if (x < g->m - 1) {
-                cell->adj[RIGHT] = graph_at(g, x + 1, y)->height;
-            }
-        }
-    }
+/* Calcolo il costo totale del percorso prendendo l'ultimo peso
+   dell'array dei pesi e aggiungo il costo dell'ultima cella */
+double road_total_cost(Graph *g, double *d, int *p) {
+    int key = g->n * g->m - 1;
+    return d[key] + g->c_cell;
 }
 
 /* Funzione di supporto per leggere un parametro intero del file */
@@ -486,16 +389,50 @@ void read_uint(FILE *f, unsigned int *ptr) {
     }
 }
 
+/* Funzione per aggiungere gli archi calcolando il peso in base al quadrato della differenza
+   dell'altezza della cella sorgente con la cella destinazione trovata nella
+   formula per calcolare il costo totale */
+void graph_add_all_edges(Graph *g, double *h) {
+    int x, y;
+    unsigned int n = g->n;
+    unsigned int m = g->m;
+
+    for (y = 0; y < n; y++) {
+        for (x = 0; x < m; x++) {
+            int dst;
+            int src = y * m + x;
+
+            if (y > 0) {
+                dst = (y - 1) * m + x;
+                graph_add_edge(g, src, dst, h[src], h[dst]);
+            }
+            if (y < n - 1) {
+                dst = (y + 1) * m + x;
+                graph_add_edge(g, src, dst, h[src], h[dst]);
+            }
+            if (x > 0) {
+                dst = y * m + x - 1;
+                graph_add_edge(g, src, dst, h[src], h[dst]);
+            }
+            if (x < m - 1) {
+                dst = y * m + x + 1;
+                graph_add_edge(g, src, dst, h[src], h[dst]);
+            }
+        }
+    }
+}
+
 /* Prende il file in input e salva il contenuto nella
  * matrice contenuta nella struttura grafo, restituendola
  */
 Graph *graph_read_from_file(FILE *f) {
     Graph *g;
-    int x, y;
+    double *heights;
+    int i;
     unsigned int c_cell, c_height;
     unsigned int n, m;
 
-    /* Legge le prime 4 */
+    /* Legge le prime 4 righe del file */
     read_uint(f, &c_cell);
     read_uint(f, &c_height);
     read_uint(f, &n);
@@ -504,110 +441,48 @@ Graph *graph_read_from_file(FILE *f) {
     assert(n >= 5 || n <= 250);
     assert(m >= 5 || m <= 250);
 
-    g = (Graph *)malloc(sizeof(Graph));
-    assert(g != NULL);
-    g->n = n;
-    g->m = m;
+    g = graph_create(n, m);
     g->c_cell = c_cell;
     g->c_height = c_height;
-
-    /* Creo una matrice di celle dinamicamente allocando
-     * in ogni riga un array di dimensione m
-     */
-    g->cells = (Cell **)malloc(sizeof(Cell *) * n);
-    assert(g->cells != NULL);
-    for (x = 0; x < n; x++) {
-        g->cells[x] = (Cell *)malloc(sizeof(Cell) * m);
-        assert(g->cells[x] != NULL);
+    
+    /* Creo una matrice dove salvo le altezze di ogni cella */
+    heights = (double *)malloc(sizeof(double) * n * m);
+    assert(heights != NULL);
+    for (i = 0; i < n * m; i++) {
+        read_double(f, &heights[i]);
     }
 
-    for (y = 0; y < n; y++) {
-        for (x = 0; x < m; x++) {
-            read_double(f, &(g->cells[y][x].height));
-        }
-    }
+    graph_add_all_edges(g, heights);
 
+    free(heights);
     return g;
 }
 
-void print_path(const Coord *p, Coord dst, unsigned int m, unsigned int size)
-{
-    int key = dst.y * m + dst.x;
+/* Funzione che stampa il percorso con costo minore */
+void print_path(const int *p, int dst_x, int dst_y, unsigned int m, unsigned int n) {
+    int key = dst_y * m + dst_x;
     if (key < 0) {
         printf("Non raggiungibile");
     } else if (key == 0) {
         printf("0 0\n");
     } else {
-        print_path(p, p[key], m, size);
+        int x = p[key] % m;
+        int y = p[key] / m;
+        print_path(p, x, y, m, n);
 
-        printf("%d %d\n", dst.y, dst.x);
-        if (key == size - 1) {
+        printf("%d %d\n", dst_y, dst_x);
+        if (key == n * m - 1) {
             printf("-1 -1\n");
         } 
     }
 }
 
-double road_total_cost(Graph *g, double *d, Coord *p) {
-    /*double init_cost;
-    double total_distance;
-    Coord dst;
-    int key;
-    int k = 0;
-
-    dst.x = g->m - 1;
-    dst.y = g->n - 1;
-    key = dst.y * g->m + dst.x;
-
-    total_distance = g->c_height * d[key];
-    while (key >= 0) {
-        key = p[key].y * g->m + p[key].x;
-        k++;
-    }
-    init_cost = g->c_cell * k;
-
-    return init_cost + total_distance;*/
-    
-    int key;
-    Coord dst;
-    dst.x = g->m - 1;
-    dst.y = g->n - 1;
-    key = dst.y * g->m + dst.x;
-    return d[key];
-}
-
-void print_matrix(const Graph *g, Coord *p, double *d) {
-    int last_key;
-    int key;
-    int x, y;
-
-    last_key = g->m * g->n - 1;
-    for (y = g->n - 1; y >= 0; y--) {
-        for (x = g->m - 1; x >= 0; x--) {
-            key = y * g->m + x;
-            if (last_key == p[key].y * g->m + p[key].x) {
-                printf("\033[31m");
-            }
-
-            printf("%7.f ", d[y * g->m + x]);
-
-            if (last_key == p[key].y * g->m + p[key].x) {
-                printf("\033[m");
-            }
-            last_key = key;
-        }
-        puts("");
-    }
-}
-
 int main(int argc, char **argv) {
     Graph *g;
-    double *d;       /* d[v] è la distanza minima dalla sorgente al
-                        nodo v */
-    Coord *p;          /* p[v] è il predecessore di v lungo il cammino
-                        minimo dalla sorgente a v */
+    double *d; /* Array dei pesi */
+    int *p;    /* Array di chiavi delle celle che formano il percorso migliore */
     unsigned int size;
     double road_cost;
-    Coord dst;
     FILE *filein;
     
     if (argc != 2) {
@@ -622,18 +497,13 @@ int main(int argc, char **argv) {
     }
 
     g = graph_read_from_file(filein);
-    create_adj(g);
 
     size = g->n * g->m;
     d = (double *)malloc(size * sizeof(double)); assert(d != NULL);
-    p = (Coord *)malloc(size * sizeof(Coord)); assert(p != NULL);
+    p = (int *)malloc(size * sizeof(int)); assert(p != NULL);
 
     dijkstra(g, d, p);
-    /*graph_print(g);*/
-    dst.x = g->m - 1;
-    dst.y = g->n - 1;
-    /*print_path(p, dst, g->m, size);*/
-    print_matrix(g, p, d);
+    print_path(p, g->m - 1, g->n - 1, g->m, g->n);
 
     road_cost = road_total_cost(g, d, p);
     printf("%.f\n", road_cost);
