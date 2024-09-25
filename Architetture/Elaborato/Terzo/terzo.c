@@ -16,9 +16,12 @@
 void main()
 {
     // Input
-    unsigned char vet[] = { 2,4,67,2,2,58,99 };
-    unsigned int len = 55;	// lunghezza (numero di bit)
-    unsigned char n = 4;	// numero di bit dati
+    unsigned char vet[] = { 0x48,0x14,0x31,0x3D,0x68,0x2E,0x6B,0x29 };
+    unsigned int len = 63;	// lunghezza (numero di bit)
+    unsigned char n = 6;	// numero di bit dati
+    //unsigned char vet[] = { 18, 173, 24 };
+    //unsigned int len = 21; // lunghezza (numero di bit)
+    //unsigned char n = 6; // numero di bit dati
 
     // Ouput
     unsigned char errori = 0;	// 1 = errori; 0 = no errori
