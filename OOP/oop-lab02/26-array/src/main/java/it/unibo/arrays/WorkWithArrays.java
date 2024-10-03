@@ -15,19 +15,41 @@ class WorkWithArrays {
     }
 
     static int[] evenElements(final int[] array) {
-        final int[] ret = new int[array.length / 2];
+        final int[] evenElements = new int[(array.length + 1) / 2];
         for (int i = 0; i < array.length; i++) {
-            ret[i / 2] = array[i];
+            if (i % 2 == 0) {
+                evenElements[i / 2] = array[i];
+            }
+        }
+        return evenElements;
+    }
+
+    static int[] oddElements(final int[] array) {
+        final int[] ret = new int[array.length / 2];
+        for (int i = 1; i < array.length; i++) {
+            if (i % 2 != 0) {
+                ret[(i - 1) / 2] = array[i];
+            }
         }
         return ret;
     }
 
-    static int[] oddElements(final int[] array) {
-        return null;
-    }
-
     static int mostRecurringElement(final int[] array) {
-        return 0;
+        int recurringElement = 0;
+        int maxRepeats = 0;
+        for (final int elem1 : array) {
+            int repeats = 0;
+            for (final int elem2 : array) {
+                if (elem1 == elem2) {
+                    repeats = repeats + 1;
+                }
+            }
+            if (repeats > maxRepeats) {
+                maxRepeats = repeats;
+                recurringElement = elem1;
+            }
+        }
+        return recurringElement;
     }
 
     static int[] sortArray(final int[] array, final boolean isDescending) {
