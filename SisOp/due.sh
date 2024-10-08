@@ -1,4 +1,1 @@
-
-ls
-ps
-ls
+echo i am 2
