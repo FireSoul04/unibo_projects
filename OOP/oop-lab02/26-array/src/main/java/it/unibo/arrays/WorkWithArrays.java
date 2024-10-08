@@ -53,15 +53,63 @@ class WorkWithArrays {
     }
 
     static int[] sortArray(final int[] array, final boolean isDescending) {
-        return array;
+        int[] ret = new int[array.length];
+        boolean isDone = false;
+
+        for (int i = 0; i < array.length; i++) {
+            ret[i] = array[i];
+        }
+
+        while (!isDone) {
+            isDone = true;
+            for (int i = 0; i < array.length - 1; i++) {
+                if (ret[i] > ret[i + 1]) {
+                    final int temp = ret[i]; 
+                    ret[i] = ret[i + 1];
+                    ret[i + 1] = temp;
+                    isDone = false;
+                }
+            }
+        }
+
+        if (isDescending) {
+            ret = revertUpTo(ret, ret.length);
+        }
+
+        return ret;
     }
 
     static double computeVariance(final int[] array) {
-        return 0;
+        double variance = 0.0;
+        double mean = 0.0;
+
+        for (final int elem : array) {
+            mean = mean + elem;
+        }
+        mean = mean / array.length;
+
+        for (final int elem : array) {
+            double power = (elem - mean) * (elem - mean);
+            variance = variance + power;
+        }
+        variance = variance / array.length;
+
+        return variance;
     }
 
     static int[] revertUpTo(final int[] array, final int element) {
-        return null;
+        int i = 0;
+        final int[] ret = new int[array.length];
+        while (i < element) {
+            ret[element - i - 1] = array[i];
+            ret[i] = array[element - i - 1];
+            i++;
+        }
+        while (i < array.length) { 
+            ret[i] = array[i];
+            i++;
+        }
+        return ret;
     }
 
     static int[] duplicateElements(final int[] array, final int times) {
