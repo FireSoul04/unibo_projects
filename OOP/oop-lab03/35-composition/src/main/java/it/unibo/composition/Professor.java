@@ -1,5 +1,8 @@
 package it.unibo.composition;
 
+import java.io.*;
+import java.util.*;
+
 public class Professor implements User {
     
     private final int id;
@@ -39,7 +42,7 @@ public class Professor implements User {
             + "name=" + this.name
             + ", surname=" + this.surname
             + ", id=" + this.id
-            + ", courses=" + Array.toString(this.courses)
+            + ", courses=" + Arrays.toString(this.courses)
             + "]";
     }
 
@@ -53,5 +56,9 @@ public class Professor implements User {
 
     public final String getDescription() {
         return this.toString();
+    }
+
+    public final String getFullname() {
+        return this.surname + " " + this.name;
     }
 }

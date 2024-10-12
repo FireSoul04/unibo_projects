@@ -1,5 +1,8 @@
 package it.unibo.composition;
 
+import java.io.*;
+import java.util.*;
+
 public class Exam {
     
     private final int id;
@@ -23,6 +26,7 @@ public class Exam {
         this.maxStudents = maxStudents;
         this.professor = professor;
         this.room = room;
+        this.students = new Student[maxStudents];
     }
 
     public final int getId() {
@@ -53,10 +57,6 @@ public class Exam {
         return this.students;
     }
 
-    public void setMaxStudents(final int maxStudents) {
-        this.maxStudents = maxStudents;
-    }
-
     public void registerStudent(final Student student) {
         if (this.registeredStudents < this.maxStudents) {
             this.students[this.registeredStudents++] = student; 
@@ -69,12 +69,12 @@ public class Exam {
     public final String toString() {
         return "Exam ["
             + "name=" + this.courseName 
-            + ", professor=" + this.professor
+            + ", professor=" + this.professor.getFullname()
             + ", id=" + this.id
-            + ", exam room=" + this.room
+            + ", exam room=" + this.room.getDescription()
             + ", number of registered students=" + this.registeredStudents
             + ", max students=" + this.maxStudents
-            + ", registered students=" + Array.toString(this.students)
+            + ", registered students=" + Arrays.toString(this.students)
             + "]";
     }
 }
