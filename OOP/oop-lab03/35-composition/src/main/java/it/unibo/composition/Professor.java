@@ -8,7 +8,13 @@ public class Professor implements User {
     private String password;
     private String[] courses;
 
-    public Professor(final int id, final String name, final String surname, final String password, final String[] courses) {
+    public Professor(
+        final int id,
+        final String name,
+        final String surname,
+        final String password,
+        final String[] courses
+    ) {
         this.id = id;
         this.name = name;
         this.surname = surname;
@@ -29,17 +35,12 @@ public class Professor implements User {
     }
 
     public String toString() {
-        String out = "Professor ["
+        return "Professor ["
             + "name=" + this.name
             + ", surname=" + this.surname
             + ", id=" + this.id
-            + ", courses=\n";
-
-        for (final String course : courses) {
-            out = out + course;
-        }
-
-        return out;
+            + ", courses=" + Array.toString(this.courses)
+            + "]";
     }
 
     public final String getUsername() {

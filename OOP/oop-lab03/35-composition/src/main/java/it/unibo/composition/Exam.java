@@ -11,45 +11,70 @@ public class Exam {
     private ExamRoom room;
     private Student[] students;
 
-    public Exam(final int id, final String courseName, final int maxStudents, final int registeredStudents, final Professor professor, final ExamRoom room) {
+    public Exam(
+        final int id,
+        final String courseName,
+        final int maxStudents,
+        final Professor professor,
+        final ExamRoom room
+    ) {
         this.id = id;
         this.courseName = courseName;
         this.maxStudents = maxStudents;
-        this.registeredStudents = registeredStudents;
         this.professor = professor;
         this.room = room;
     }
 
     public final int getId() {
-        return id;
+        return this.id;
     }
 
     public final String getCourseName() {
-        return courseName;
+        return this.courseName;
     }
 
     public final int getMaxStudents() {
-        return maxStudents;
+        return this.maxStudents;
     }
 
     public final int getRegisteredStudents() {
-        return registeredStudents;
+        return this.registeredStudents;
     }
     
     public final Professor getProfessor() {
-        return professor;
+        return this.professor;
     }
 
     public final ExamRoom getRoom() {
-        return room;
+        return this.room;
     }
 
     public final Student[] getStudents() {
-        return students;
+        return this.students;
     }
 
-    public void setStudents(final Student[] students) {
-        this.students = students;
-        registeredStudents = students.length;
+    public void setMaxStudents(final int maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public void registerStudent(final Student student) {
+        if (this.registeredStudents < this.maxStudents) {
+            this.students[this.registeredStudents++] = student; 
+            System.out.println("Student " + student.getId() + " added successfully");
+        } else {
+            System.out.println("Max registered students reached");
+        }
+    }
+
+    public final String toString() {
+        return "Exam ["
+            + "name=" + this.courseName 
+            + ", professor=" + this.professor
+            + ", id=" + this.id
+            + ", exam room=" + this.room
+            + ", number of registered students=" + this.registeredStudents
+            + ", max students=" + this.maxStudents
+            + ", registered students=" + Array.toString(this.students)
+            + "]";
     }
 }
