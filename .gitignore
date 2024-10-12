@@ -1,6 +1,8 @@
 # Ignore all
 *
 
+!gradlew
+
 # Unignore all with extensions
 !*.*
 
