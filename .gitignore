@@ -26,6 +26,8 @@
 *.lastbuildstate
 *.log
 
+build/
+bin/
 .vscode/
 .vs/
 [Dd]ebug/
