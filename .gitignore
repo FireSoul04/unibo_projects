@@ -12,6 +12,7 @@
 *.bin
 *.dat
 *.exe
+*.class
 *.o
 *.sln
 *.vcxproj
