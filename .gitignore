@@ -33,3 +33,4 @@ bin/
 .vs/
 [Dd]ebug/
 x64/
+.gradle/
