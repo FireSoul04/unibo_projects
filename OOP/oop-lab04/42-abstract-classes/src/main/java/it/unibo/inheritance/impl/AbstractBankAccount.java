@@ -19,7 +19,8 @@ public abstract class AbstractBankAccount implements BankAccount {
 
     public void chargeManagementFees(final int id) {
         if (checkUser(id)) {
-            this.balance -= SimpleBankAccount.MANAGEMENT_FEE;
+            this.balance -= this.computeFee();
+            this.resetTransactions();
         }
     }
 
