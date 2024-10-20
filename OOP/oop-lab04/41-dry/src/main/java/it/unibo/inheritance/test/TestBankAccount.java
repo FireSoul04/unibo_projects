@@ -2,7 +2,7 @@ package it.unibo.inheritance.test;
 
 import it.unibo.inheritance.api.AccountHolder;
 import it.unibo.inheritance.api.BankAccount;
-import it.unibo.inheritance.impl.SimpleBankAccount;
+import it.unibo.inheritance.impl.ExtendedStrictBankAccount;
 import it.unibo.inheritance.impl.StrictBankAccount;
 
 public class TestBankAccount {
@@ -40,7 +40,7 @@ public class TestBankAccount {
         /*
          * Change SimpleBankAccount to ExtendedStrictBankAccount
          */
-        final BankAccount rossisAccount = new SimpleBankAccount(aRossi.getUserID(), 0);
+        final BankAccount rossisAccount = new ExtendedStrictBankAccount(aRossi.getUserID(), 0);
         final BankAccount bianchisAccount = new StrictBankAccount(aBianchi.getUserID(), 0);
         requireSameAmount(rossisAccount, bianchisAccount);
         // First deposit
