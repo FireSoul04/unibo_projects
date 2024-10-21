@@ -89,7 +89,7 @@ public class BaseRobot implements Robot {
         System.out.println("[" + this.robotName + "]: " + msg);
     }
 
-    private boolean move(final int dx, final int dy) {
+    protected boolean move(final int dx, final int dy) {
         if (isBatteryEnough(getBatteryRequirementForMovement())) {
             if (environment.move(dx, dy)) {
                 consumeBatteryForMovement();
