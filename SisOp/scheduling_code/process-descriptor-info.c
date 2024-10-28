@@ -12,9 +12,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libproc.h>
-#include <sys/proc.h>
-
 
 #define PROC_NAME_LEN 1024
 #define MAX_PATH 1024
@@ -177,59 +174,10 @@ void print_process_info(pid_t pid) {
     }
 }
 
-
-///////////////
-// versione adattata per mac
-void print_process_info_mac(pid_t pid) {
-    char name[PROC_PIDPATHINFO_MAXSIZE];
-    struct proc_bsdinfo proc_info;
-
-    // Stampa PID
-    printf("PID: %d\n", pid);
-
-    // Stampa nome del processo
-    /* 
-     * Su macOS, usiamo proc_name() invece di leggere da /proc/<pid>/comm
-     * Questa funzione ottiene il nome del processo dato il suo PID
-     */
-    if (proc_name(pid, name, sizeof(name)) > 0) {
-        printf("Nome del processo: %s\n", name);
-    } else {
-        printf("Impossibile ottenere il nome del processo\n");
-    }
-
-    // Stampa stato del processo
-    /*
-     * Su macOS, usiamo proc_pidinfo() invece di leggere da /proc/<pid>/status
-     * Questa funzione ottiene varie informazioni sul processo, incluso il suo stato
-     * PROC_PIDTBSDINFO è il tipo di informazione che richiediamo (informazioni di base sul processo)
-     */
-    if (proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &proc_info, sizeof(proc_info)) > 0) {
-        printf("Stato: ");
-        /*
-         * Lo stato del processo su macOS è rappresentato da costanti come SRUN, SSLEEP, etc.
-         * Usiamo uno switch per tradurre questi stati in stringhe leggibili
-         */
-        switch (proc_info.pbi_status) {
-            case SIDL:    printf("IDLE\n"); break;
-            case SRUN:    printf("RUNNING\n"); break;
-            case SSLEEP:  printf("SLEEPING\n"); break;
-            case SSTOP:   printf("STOPPED\n"); break;
-            case SZOMB:   printf("ZOMBIE\n"); break;
-            default:      printf("UNKNOWN\n"); break;
-        }
-    } else {
-        printf("Impossibile ottenere lo stato del processo\n");
-    }
-}
-
 // ottiene il PID del processo corrente e chiama print_process_info
 int main() {
     pid_t pid = getpid();
     // da eseguire su linux
     print_process_info(pid);
-    // da eseguire su mac
-    print_process_info_mac(pid);
-    // su windows ... 
     return 0;
 }

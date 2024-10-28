@@ -56,11 +56,9 @@ int main(int argc, char *argv[])
 	pthread_create(&tid,&attr,runner,argv[1]);
 
 	/* now wait for the thread to exit */
+	pthread_join(tid,NULL);
 
 	printf("sum = %d\n",sum);
-
-	//pthread_join(tid,NULL);
-	printf("Main thread closed\n");
 }
 
 /**
@@ -68,8 +66,6 @@ int main(int argc, char *argv[])
  */
 void *runner(void *param) 
 {
-	printf("Thread open\n");
-	getchar();
 	int i, upper = atoi(param);
 	sum = 0;
 
@@ -77,9 +73,6 @@ void *runner(void *param)
 		for (i = 1; i <= upper; i++)
 			sum += i;
 	}
-
-	printf("Thread closed\n");
-	getchar();
 
 	pthread_exit(0);
 }
