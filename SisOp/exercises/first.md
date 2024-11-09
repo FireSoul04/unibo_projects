@@ -18,7 +18,13 @@ PIPPO="$USER,$HOME,$DISPLAY"
 echo "PIPPO=$PIPPO"
 ```
 
-# 3.
+# 4.
+crea_var.sh
+```bash
+#!/bin/bash
+PIPPO=pippo
+```
+
 ```bash
 echo "Prima PIPPO=$PIPPO"
 bash ./crea_var.sh
