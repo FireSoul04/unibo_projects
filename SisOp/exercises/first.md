@@ -1,27 +1,27 @@
-# 1.
+### 1.
 ```bash
 echo $USER
 echo $HOME
 echo $DISPLAY
 ```
 
-# 2.
+### 2.
 ```bash
 env | grep HOME
 env | grep USER
 env | grep DISPLAY
 ```
 
-# 3.
+### 3.
 ```bash
 PIPPO="$USER,$HOME,$DISPLAY"
 echo "PIPPO=$PIPPO"
 ```
 
-# 4.
+### 4.
 crea_var.sh
 ```bash
-#!/bin/bash
+###!/bin/bash
 PIPPO=pippo
 ```
 
@@ -31,20 +31,20 @@ bash ./crea_var.sh
 echo "Dopo PIPPO=$PIPPO"
 ```
 
-# 5.
+### 5.
 ```bash
 echo "Prima PIPPO=$PIPPO"
 source ./crea_var.sh
 echo "Dopo PIPPO=$PIPPO"
 ```
 
-# 6.
+### 6.
 ```bash
 cd /
 echo ~
 ```
 
-# 7.
+### 7.
 ```bash
 mkdir ~/A1/
 mkdir ~/A1/B2/
@@ -54,23 +54,23 @@ mv ~/A1/B2/C3/*.txt ~/A1/B2/
 cp ~/A1/B2/*.txt ~/A1/
 ```
 
-# 8.
+### 8.
 ```bash
 cat ~/.*
 ```
 
-# 9.
+### 9.
 ```bash
 ls /usr/include/linux/netfilter/nf_nat.h
 ```
 
-# 10.
+### 10.
 ```bash
 history
 !2
 ```
 
-# 11.
+### 11.
 ```bash
 history
 set +o history
@@ -79,7 +79,7 @@ history
 set -o history
 ```
 
-# 12.
+### 12.
 ```bash
 PIPPO=1
 set -a
@@ -90,49 +90,49 @@ env | grep BAUDO
 unset PIPPO BAUDO
 ```
 
-# 13.
+### 13.
 ```bash
 echo "echo PIPPO" >> ~/.bashrc
 echo "echo BAUDO" >> ~/.profile
 ```
 
-# 14.
+### 14.
 ```bash
 ls /usr/lib/*plu*
 ```
 
-# 15.
+### 15.
 ```bash
 man ls
 ```
 
-# 16.
+### 16.
 ```bash
 ls -alh /usr/include/
 ```
 
-# 17.
+### 17.
 ```bash
 ls -dlhR /usr/include/
 ```
 
-# 18.
+### 18.
 ```bash
 mkdir BUTTAMI
 touch ./BUTTAMI/A{B,b}C.txt
 ```
 
-# 19.
+### 19.
 ```bash
 rm ./BUTTAMI/ABC.txt
 ```
 
-# 20.
+### 20.
 ```bash
 rm -rf BUTTAMI
 ```
 
-# 21.
+### 21.
 ```bash
 ls /usr/lib/*[1-3c-m]*.0
 ```
