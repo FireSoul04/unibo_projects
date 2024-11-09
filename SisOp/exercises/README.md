@@ -1,7 +1,7 @@
-### Solutions of OS exercises
+# Solutions of OS exercises
 
-# First week exercises
+### First week exercises
 [First](first.md)
 
-# Second week exercises
+### Second week exercises
 [Second](second.md)
