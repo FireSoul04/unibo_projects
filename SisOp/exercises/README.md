@@ -4,4 +4,4 @@
 [First](first.md)
 
 # Second week exercises
-[Second](first.md)
+[Second](second.md)
