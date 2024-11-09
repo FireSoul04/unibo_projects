@@ -21,7 +21,7 @@ echo "PIPPO=$PIPPO"
 ### 4.
 crea_var.sh
 ```bash
-###!/bin/bash
+#!/bin/bash
 PIPPO=pippo
 ```
 
