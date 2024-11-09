@@ -1,9 +1,9 @@
-# 22.
+### 22.
 ```bash
 touch con\ spazio.txt senzaspazio1.txt senzaspazio2.txt
 ```
 
-# 23.
+### 23.
 ```bash
 touch lancia.sh stampaargs.sh
 ```
@@ -26,7 +26,7 @@ done
 ./lancia.sh *spazio*
 ```
 
-# 24.
+### 24.
 ```bash
 touch lancia2.sh stampaargs2.sh
 ```
@@ -50,12 +50,12 @@ done
 ./lancia2.sh *spazio*
 ```
 
-# 25.
+### 25.
 ```bash
 rm "con spazio.txt" senzaspazio1.txt senzaspazio2.txt
 ```
 
-# 26.
+### 26.
 ```bash
 mkdir BUTTAMI
 cd BUTTAMI
@@ -69,7 +69,7 @@ find . -type d
 rm -rf ./include
 ```
 
-# 27.
+### 27.
 ```bash
 mkdir BUTTAMI
 cd BUTTAMI
@@ -83,7 +83,7 @@ find . -type d
 rm -rf ./include
 ```
 
-# 4.
+### 4.
 ```bash
 touch chiama_fattoriale.sh fattoriale.sh
 ./chiama_fattoriale.sh
@@ -108,7 +108,7 @@ done
 echo ${FATTORIALE}
 ```
 
-# 5.
+### 5.
 ```bash
 touch chiama_fattoriale1.sh fattoriale1.sh
 ./chiama_fattoriale1.sh
@@ -131,7 +131,7 @@ if (( $1 > 1 )); then
 fi
 ```
 
-# 6.
+### 6.
 ```bash
 bash ./script1.sh a b "c d" e f
 ```
@@ -157,23 +157,23 @@ while (( $NUM > 0 )); do
 done
 ```
 
-# 7.
+### 7.
 ```bash
 man echo
 echo -e "vado a capo\nrimuovo il carattere a da parola\b \taggiungo un tab"
 ```
 
-# 8.
+### 8.
 ```bash
 echo -n "non vado a capo"
 ```
 
-# 9.
+### 9.
 ```bash
 ls
 ```
 
-# 10.
+### 10.
 script.sh
 ```bash
 #!/bin/bash
@@ -183,32 +183,32 @@ for file in *; do
 done
 ```
 
-# 11.
+### 11.
 script.sh
 ```bash
 #!/bin/bash
 for file in *; do; echo "file is ${file}"; ls -d ./${file}; done
 ```
 
-# 12.
+### 12.
 script.sh
 ```bash
 #!/bin/bash
 for file in *; do echo "file is ${file}"; ls -d ./${file}; if [[ $? -ne 0 ]]; then echo "ls produce errore"; fi; done
 ```
 
-# 13.
+### 13.
 ```bash
 touch "alfa beta.txt"
 bash ./script.sh
 ```
 
-# 14.
+### 14.
 ```bash
 ls
 ```
 
-# 15.
+### 15.
 ```bash
 bash triplette.sh
 ```
@@ -225,22 +225,22 @@ for file1 in *; do
 done
 ```
 
-# 16.
+### 16.
 ```bash
 
 ```
 
-# 17.
+### 17.
 ```bash
 
 ```
 
-# 18.
+### 18.
 ```bash
 
 ```
 
-# 19.
+### 19.
 ```bash
 
 ```
