@@ -3,12 +3,12 @@
 
 ### Every computer science related course that I followed are in their respective directories of the repo
 
-[Programming in C language](programming/README.md)
+[Programming in C language](programming/)
 
-[Algorithms and data structures in C language](algorithms/README.md)
+[Algorithms and data structures in C language](algorithms/)
 
-[Computer architecture in x86 inline assembly](computer_architecture/README.md)
+[Computer architecture in x86 inline assembly](computer_architecture/)
 
-[Object-Oriented Programming in Java with Gradle and Swing](oop/README.md)
+[Object-Oriented Programming in Java with Gradle and Swing](oop/)
 
-[Operating Systems in bash and C languages for concurrent programming](operating_systems/README.md)
+[Operating Systems in bash and C languages for concurrent programming](operating_systems/)
