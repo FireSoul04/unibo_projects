@@ -255,10 +255,50 @@ bash argomenti.sh ;
 
 ### 18.
 ```bash
+bash sommaquadrati.sh
+```
 
+sommaquadrati.sh
+```bash
+#!/bin/bash
+SUM=0
+COUNTER=$#
+for arg in $*; do
+    (( SUM=${SUM}+(arg*arg) ))
+    (( COUNTER=${COUNTER}+${COUNTER}-1 ))
+done
+(( RESULT=${SUM}-${COUNTER} ))
+echo ${RESULT}
 ```
 
 ### 19.
 ```bash
+bash main.sh
+```
 
+main.sh
+```bash
+#!/bin/bash
+source definisci.sh
+bash usa.sh
+source elimina.sh
+bash usa.sh
+```
+
+definisci.sh
+```bash
+#!/bin/bash
+export VAR=INIZIO
+```
+
+usa.sh
+```bash
+#!/bin/bash
+echo ${VAR}
+```
+
+elimina.sh
+```bash
+#!/bin/bash
+unset VAR
 ```
