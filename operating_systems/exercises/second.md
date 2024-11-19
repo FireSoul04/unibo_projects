@@ -133,7 +133,7 @@ fi
 
 ### 6.
 ```bash
-bash ./script1.sh a b "c d" e f
+./script1.sh a b "c d" e f
 ```
 
 script1.sh
@@ -144,7 +144,7 @@ while (( $NUM <= $# )); do
     echo ${!NUM}
     (( NUM=${NUM}+1 ))
 done
-bash ./script2.sh "$@"
+./script2.sh "$@"
 ```
 
 script2.sh
@@ -200,7 +200,7 @@ for file in *; do echo "file is ${file}"; ls -d ./${file}; if [[ $? -ne 0 ]]; th
 ### 13.
 ```bash
 touch "alfa beta.txt"
-bash ./script.sh
+./script.sh
 ```
 
 ### 14.
@@ -210,7 +210,7 @@ ls
 
 ### 15.
 ```bash
-bash triplette.sh
+./triplette.sh
 ```
 
 triplette.sh
@@ -227,7 +227,7 @@ done
 
 ### 16.
 ```bash
-bash argomenti.sh 1 3 5 6
+./argomenti.sh 1 3 5 6
 ```
 
 argomenti.sh
@@ -250,12 +250,12 @@ echo ${ARGS}
 
 ### 17.
 ```bash
-bash argomenti.sh ;
+./argomenti.sh ;
 ```
 
 ### 18.
 ```bash
-bash sommaquadrati.sh
+./sommaquadrati.sh
 ```
 
 sommaquadrati.sh
@@ -273,16 +273,16 @@ echo ${RESULT}
 
 ### 19.
 ```bash
-bash main.sh
+./main.sh
 ```
 
 main.sh
 ```bash
 #!/bin/bash
 source definisci.sh
-bash usa.sh
+./usa.sh
 source elimina.sh
-bash usa.sh
+./usa.sh
 ```
 
 definisci.sh

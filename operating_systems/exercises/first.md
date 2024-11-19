@@ -27,7 +27,7 @@ PIPPO=pippo
 
 ```bash
 echo "Prima PIPPO=$PIPPO"
-bash ./crea_var.sh
+./crea_var.sh
 echo "Dopo PIPPO=$PIPPO"
 ```
 
