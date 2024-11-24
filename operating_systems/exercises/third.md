@@ -89,7 +89,7 @@ fi
 
 ### 27.
 ```bash
-cat asterischi.txt | ./star.sh
+./star.sh < asterischi.txt
 ```
 
 star.sh
