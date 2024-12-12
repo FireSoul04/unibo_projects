@@ -10,4 +10,7 @@
 [Third](third.md)
 
 ### Forth week exercises
-[Forth](Forth.md)
+[Forth](forth.md)
+
+### Fifth week exercises
+[Fifth](fifth.md)
