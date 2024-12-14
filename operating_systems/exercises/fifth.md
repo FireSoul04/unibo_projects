@@ -55,6 +55,60 @@ echo "Numero file=$NumFile"
 ```
 
 ### 38.
+seconda.sh
+```bash
+#!/bin/bash
+FILE=$1
+if (( $# <= 0 || $# > 1 )); then
+    echo One argument is required
+    exit 1
+fi
+if [[ !( -e $FILE ) ]]; then
+    echo File not found
+    exit 1
+fi
+OUT=""
+while read A B C; do
+    OUT=${OUT}${B}
+done < $FILE
+echo ${OUT}
+```
+
+### 39.
+```bash
+cat input.txt | ./seleziona.sh
+```
+
+seleziona.sh
+```bash
+#!/bin/bash
+grep -i A | wc -c
+```
+
+### 40.
+```bash
+for (( i=0; ls; i=i+1 )); do echo "${i}"; done
+```
+non produce errore se togliamo il punto
+
+### 41.
+```bash
+#!/bin/bash
+if (( $# <= 0 )); then
+    echo Need at least an argument
+    exit 1
+fi
+OUT=""
+STR="$@"
+i=$((${#STR} + 1))
+while ((i >= 0)); do
+    OUT="${OUT}${STR:i:1}"
+    i=$((i-1))
+done
+echo "$OUT"
+```
+
+### 42.
 ```bash
 
 ```
