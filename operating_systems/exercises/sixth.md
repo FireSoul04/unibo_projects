@@ -53,7 +53,7 @@ separa.sh
 #!/bin/bash
 for FILE in ${PATH//:/ }; do
     COUNT=0
-    for ELEM in ${FILE//'/'/ }; do
+    for ELEM in ${FILE//// }; do
         COUNT=$((COUNT + 1))
     done
     echo $FILE $COUNT
@@ -79,7 +79,7 @@ separanomi.sh
 #!/bin/bash
 OUT=""
 for FILE in ${PATH//:/ }; do
-    for DIR in ${FILE//'/'/ }; do
+    for DIR in ${FILE//// }; do
         OUT="${OUT} ${DIR}"
     done
 done
