@@ -14,3 +14,6 @@
 
 ### Fifth week exercises
 [Fifth](fifth.md)
+
+### Sixth week exercises
+[Sixth](sixth.md)
