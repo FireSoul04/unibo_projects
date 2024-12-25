@@ -7,3 +7,5 @@ If you want to lookup my exercises or projects
 [Exercises](exercises/)
 
 [Laboratory exercises](lab_exercises/)
+
+[Exam simulations](exam_simulations/)
