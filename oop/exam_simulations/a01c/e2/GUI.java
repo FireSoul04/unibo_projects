@@ -1,17 +1,19 @@
 package a01c.e2;
 
 import javax.swing.*;
+
 import java.util.*;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
     
     private static final long serialVersionUID = -6218820567019985015L;
-    private final List<JButton> cells = new ArrayList<>();
+    private final Map<JButton, Point> cells = new HashMap<>();
+    private final Logic logic;
     
     public GUI(int size) {
+        this.logic = new LogicImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(100*size, 100*size);
         
@@ -20,14 +22,22 @@ public class GUI extends JFrame {
         
         ActionListener al = e -> {
             var jb = (JButton)e.getSource();
-        	jb.setText(String.valueOf(cells.indexOf(jb)));
+            int val = logic.click(cells.get(jb));
+            if (val > 0) {
+                jb.setText(Integer.toString(val));
+            } else {
+                cells.forEach((k, v) -> logic.getRectangleCells().stream().filter(t -> t.equals(v)).forEach(t -> k.setText("0")));
+            }
+
+            if (logic.quit()) {
+                System.exit(0);
+            }
         };
                 
         for (int i=0; i<size; i++){
             for (int j=0; j<size; j++){
-            	var pos = new Pair<>(j,i);
-                final JButton jb = new JButton(pos.toString());
-                this.cells.add(jb);
+                final JButton jb = new JButton();
+                this.cells.put(jb, new Point(j, i));
                 jb.addActionListener(al);
                 panel.add(jb);
             }
