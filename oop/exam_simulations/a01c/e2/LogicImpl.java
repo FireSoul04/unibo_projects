@@ -23,6 +23,8 @@ public class LogicImpl implements Logic {
             clickedCells.add(p);
             val = clickedCells.size();
         } else if (startDrawRectangle()) {
+            start = clickedCells.stream().toList().get(0);
+            end = clickedCells.stream().toList().get(1);    
             drawRectangle();
         } else {
             expandRectangle();
@@ -40,13 +42,10 @@ public class LogicImpl implements Logic {
     }
 
     private void drawRectangle() {
-        Point p1 = clickedCells.stream().toList().get(0);
-        Point p2 = clickedCells.stream().toList().get(1);
-
-        int x1 = p1.x();
-        int y1 = p1.y();
-        int x2 = p2.x();
-        int y2 = p2.y();
+        int x1 = start.x();
+        int y1 = start.y();
+        int x2 = end.x();
+        int y2 = end.y();
         int x = Math.min(x1, x2);
         int y = Math.min(y1, y2);
         int w = Math.abs(x1 - x2);
@@ -63,26 +62,19 @@ public class LogicImpl implements Logic {
     }
 
     private void expandRectangle() {
-        start = clickedCells.stream().toList().get(0);
-        end = clickedCells.stream().toList().get(1);
-
-        int x1 = p1.x();
-        int y1 = p1.y();
-        int x2 = p2.x();
-        int y2 = p2.y();
+        int x1 = start.x();
+        int y1 = start.y();
+        int x2 = end.x();
+        int y2 = end.y();
         int x = Math.min(x1, x2) - 1;
         int y = Math.min(y1, y2) - 1;
-        int w = Math.max(x1, x2) - 1;
-        int h = Math.max(y1, y2) - 1;
+        int w = Math.max(x1, x2) + 1;
+        int h = Math.max(y1, y2) + 1;
+
+        start = new Point(x, y);
+        end = new Point(w, h);
         
-        for (int i = 0; i <= w; i++) {
-            for (int j = 0; j <= h; j++) {
-                Point p = new Point(i + x, j + y);
-                if (!clickedCells.contains(p)) {
-                    rectangleCells.add(p);
-                }
-            }
-        }
+        drawRectangle();
     }
 
     @Override
@@ -97,6 +89,8 @@ public class LogicImpl implements Logic {
 
     @Override
     public boolean quit() {
-        return this.clickedCells.size() > size * size;
+        return this.rectangleCells.size() > 0
+            && this.rectangleCells.stream().anyMatch(t -> t.x() >= size - 1 && t.y() >= size - 1)
+            && this.rectangleCells.stream().anyMatch(t -> t.x() <= 0 && t.y() <= 0);
     }
 }

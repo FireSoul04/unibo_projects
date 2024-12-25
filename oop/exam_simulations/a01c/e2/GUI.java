@@ -25,8 +25,14 @@ public class GUI extends JFrame {
             int val = logic.click(cells.get(jb));
             if (val > 0) {
                 jb.setText(Integer.toString(val));
-            } else {
-                cells.forEach((k, v) -> logic.getRectangleCells().stream().filter(t -> t.equals(v)).forEach(t -> k.setText("0")));
+            }
+
+            for (var p : logic.getRectangleCells()) {
+                for (var entry : cells.entrySet()) {
+                    if (entry.getValue().equals(p)) {
+                        entry.getKey().setText("0");
+                    }
+                }
             }
 
             if (logic.quit()) {
