@@ -2,7 +2,7 @@ package a02a.e2;
 
 public class Test {
 
-	 /*
+	/*
      * Scopo di questo esercizio è realizzare una GUI con l'aspetto mostrato nell'immagine fig1.png, fornita, 
      * che realizza la possibilità di selezionare un insieme di celle vuote disposte su una griglia di celle non contigue,
      * fino a che gli ultimi 4 click non individuano 4 celle "o" che formano un quadrato minimale:
