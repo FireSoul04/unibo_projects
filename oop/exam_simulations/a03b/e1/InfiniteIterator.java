@@ -20,5 +20,4 @@ public interface InfiniteIterator<X> {
 	default List<X> nextListOfElements(int size) {
 		return Stream.generate(this::nextElement).limit(size).toList();
 	}
-	
 }
