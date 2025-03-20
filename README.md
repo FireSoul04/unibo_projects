@@ -12,3 +12,7 @@
 [Object-Oriented Programming in Java with Gradle and Swing](oop/)
 
 [Operating Systems in bash and C languages for concurrent programming](operating_systems/)
+
+[Database systems with ER models and queries](databases/)
+
+[Numerical methods for artificial intelligence in python](numerical_methods/)
