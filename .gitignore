@@ -9,6 +9,9 @@
 # Unignore all dirs
 !*/
 
+*.ipynb_checkpoints
+*.virtual_documents
+*__pycache__
 *.bin
 *.dat
 *.exe
