@@ -3,9 +3,9 @@
 
 #include <glad/glad.h>               // Loader per funzioni OpenGL (carica puntatori a funzioni OpenGL)
 #include <GLFW/glfw3.h>              // Libreria per gestione finestre, input, context OpenGL
-#include <ImGui\imgui.h>             // Libreria ImGui per GUI immediate mode
-#include <ImGui\imgui_impl_glfw.h>  // Integrazione ImGui con GLFW (input e finestre)
-#include <ImGui\imgui_impl_opengl3.h> // Integrazione ImGui con OpenGL3 (rendering)
+#include <ImGui/imgui.h>             // Libreria ImGui per GUI immediate mode
+#include <ImGui/imgui_impl_glfw.h>  // Integrazione ImGui con GLFW (input e finestre)
+#include <ImGui/imgui_impl_opengl3.h> // Integrazione ImGui con OpenGL3 (rendering)
 
 #include <iostream>                  // Input/output standard C++
 #include "gestione_Eventi.h"         // Header personalizzato per callback eventi (es. tastiera, mouse)
