@@ -554,14 +554,10 @@ def conjugate_gradient(A,b,x0,itmax,tol):
 #Soluzione di sistemi sovradeterminati
 
 def eqnorm(A,b):
- 
     G= #to do  
     f=#to do 
-    
     L=
     U=
-        
-        
     return x
 
 
