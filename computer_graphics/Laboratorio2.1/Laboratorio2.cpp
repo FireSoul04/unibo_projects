@@ -37,8 +37,9 @@ float vertices[] = {
 
 float colors[] = {
     1.0f, 0.0f, 0.0f, 1.0f,
-    0.0f, 1.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f, 1.0f
+    0.0f, 0.0f, 1.0f, 1.0f,
+    0.5f, 0.5f, 0.0f, 1.0f,
+    0.0f, 0.5f, 0.5f, 1.0f,
 };
 
 unsigned int elements[] = {
@@ -62,8 +63,13 @@ int main(void)
     // Abilita il double buffering per rendering fluido
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 
+    const GLFWvidmode *return_struct = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+    int height = return_struct->height;
+    int width = return_struct->width;
+
     /* Crea la finestra con contesto OpenGL */
-    window = glfwCreateWindow(1200, 700, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(width * 0.8f, height * 0.8f, "Hello World", NULL, NULL);
 
     if (!window) // Controlla la creazione della finestra
     {
