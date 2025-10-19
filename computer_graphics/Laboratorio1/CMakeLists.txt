@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Laboratorio2)
 
-set(DEPENDENCIES $ENV{HOME}/dependencies_GL_GLFW)
+if(WIN32)
+        set(DEPENDENCIES C:/dependencies_GL_GLFW)
+else()
+        set(DEPENDENCIES $ENV{HOME}/dependencies_GL_GLFW)
+endif()
+
 set(IMGUI_PATH ${DEPENDENCIES}/ImGui)
 set(INCLUDE_PATH ${DEPENDENCIES}/include)
 
