@@ -76,10 +76,7 @@ void my_interface()
 
     for (int i = 0; i < 3; i++) {
         std::string label = "vertex " + (i + 1);
-        ImGui::SliderFloat(std::string(label + " red").c_str(), &guiColors[i].x, 0.0f, 1.0f);
-        ImGui::SliderFloat(std::string(label + " blue").c_str(), &guiColors[i].y, 0.0f, 1.0f);
-        ImGui::SliderFloat(std::string(label + " green").c_str(), &guiColors[i].z, 0.0f, 1.0f);
-        ImGui::SliderFloat(std::string(label + " alpha").c_str(), &guiColors[i].w, 0.0f, 1.0f);
+        ImGui::ColorEdit4(label.c_str(), (float*)&guiColors[i]);
     }
 
     ImGui::End();
