@@ -72,7 +72,7 @@ int main(void)
         float currentTime = glfwGetTime(); //rappresenta i secondi trascorsi dall’avvio di GLFW e cresce continuamente.
 
 
-        renderizza3(currentTime);
+        renderizza(currentTime);
          
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

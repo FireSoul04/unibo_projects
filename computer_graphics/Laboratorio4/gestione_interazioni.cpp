@@ -7,7 +7,7 @@ extern bool isMouseDown;
 extern float r, g, b;
 extern double mousex,mousey;
 extern int height, width;
-extern float vx, vy;
+extern float dirx, diry;
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 
     // Visualizza le coordinate del mouse che si muove sulla finestra grafica
@@ -47,19 +47,33 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         break;
     }
 
-    vx = 0.0f;
-    vy = 0.0f;
-    if (key == GLFW_KEY_W) {
-        vy = step;
+    if (action == GLFW_PRESS) {
+        switch (key) {
+        case GLFW_KEY_W:
+            diry += step;
+            break;
+        case GLFW_KEY_S:
+            diry -= step;
+            break;
+        case GLFW_KEY_A:
+            dirx -= step;
+            break;
+        case GLFW_KEY_D:
+            dirx += step;
+            break;
+        }
     }
-    if (key == GLFW_KEY_S) {
-        vy = -step;
-    }
-    if (key == GLFW_KEY_A) {
-        vx = -step;
-    }
-    if (key == GLFW_KEY_D) {
-        vx = step;
+    else if (action == GLFW_RELEASE) {
+        switch (key) {
+        case GLFW_KEY_W:
+        case GLFW_KEY_S:
+            diry = 0;
+            break;
+        case GLFW_KEY_A:
+        case GLFW_KEY_D:
+            dirx = 0;
+			break;
+        }
     }
 }
 
