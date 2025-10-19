@@ -17,10 +17,6 @@
 *.exe
 *.class
 *.o
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
 *.exe.recipe
 *.iobj
 *.ipdb
