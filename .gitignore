@@ -30,6 +30,7 @@
 *.lastbuildstate
 *.log
 
+out/
 build/
 bin/
 .vscode/
