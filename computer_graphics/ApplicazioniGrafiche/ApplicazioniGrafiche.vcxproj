@@ -18,35 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imconfig.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_glfw.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_internal.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_textedit.h" />
-    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_widgets.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{49a54414-531b-4bb2-be22-bb6ec41af5a4}</ProjectGuid>
-    <RootNamespace>Progetto1</RootNamespace>
+    <ProjectGuid>{739d55ff-e38d-4dc2-92c5-5b628f4f0364}</ProjectGuid>
+    <RootNamespace>ApplicazioniGrafiche</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -100,10 +76,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\dependencies_GL_GLFW;C:\dependencies_GL_GLFW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\dependencies_GL_GLFW\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,12 +93,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\dependencies_GL_GLFW;C:\dependencies_GL_GLFW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\dependencies_GL_GLFW\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,12 +110,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\dependencies_GL_GLFW;C:\dependencies_GL_GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dependencies_GL_GLFW;C:\dependencies_GL_GLFW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:/dependencies_GL_GLFW/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\dependencies_GL_GLFW\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -145,14 +127,40 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\dependencies_GL_GLFW;C:\dependencies_GL_GLFW\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\dependencies_GL_GLFW\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imconfig.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_textedit.h" />
+    <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_truetype.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\glm.1.0.1\build\native\glm.targets" Condition="Exists('packages\glm.1.0.1\build\native\glm.targets')" />

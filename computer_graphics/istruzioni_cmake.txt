@@ -1,5 +1,0 @@
-- Cambiare il percorso dove si trova la cartella dependencies_GL_GLFW
-- Inserire il file CMakeLists.txt dentro la cartella con i file sorgenti
-- Cambiare il nome del progetto dentro CMakeLists.txt
-- Cambiare i backslash di include dentro Gui.cpp e il file dove viene gestita la gui dell'esercizio
-- Su linux eseguire nella cartella build
