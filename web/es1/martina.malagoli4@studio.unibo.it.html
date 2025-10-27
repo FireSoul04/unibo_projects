@@ -1,0 +1,86 @@
+    <!DOCTYPE html>
+    <html lang="it">
+    <head>
+        <title>Contatti</title>
+        <style>
+            main form ul li {
+                list-style: none;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Contatti</h1>
+        </header>
+        <main> 
+            <form>
+                <fieldset>
+                    <legend>Dati Anagrafici</legend>
+                    <ul>
+                        <li>
+                            <label for="name">Nome</label>
+                            <input type="text" name="name" id="name" required />
+                        </li>
+                        <li>
+                            <label for="surname">Cognome</label>
+                            <input type="text" name="surname" id="surname" required />
+                        </li>
+                        <li>
+                            <label for="cf">Codice Fiscale</label>
+                            <input type="text" name="cf" id="cf" required />
+                        </li>
+                        <li>
+                            <label for="birth_date">Data di Nascita</label>
+                            <input type="date" name="birth_date" id="birth_date" required />
+                        </li>
+                        <li>
+                            <label for="birth_place">Luogo di Nascita</label>
+                            <input type="text" name="birth_place" id="birth_place" required />
+                        </li>
+                        <li>
+                            <label for="address">Indirizzo</label>
+                            <input type="text" name="address" id="address" required />
+                        </li>
+                    </ul>
+                </fieldset>
+                <fieldset>
+                    <legend>Preferenze</legend>
+                    <ul>
+                        <li>
+                            <div>Assicurazione</div>
+                            <input type="radio" name="ensurance" id="first" value="first" required />
+                            <label for="first">Primo Livello</label>
+                            <br />
+                            <input type="radio" name="ensurance" id="second" value="second" required />
+                            <label for="second">Secondo Livello</label>
+                            <br />
+                            <input type="radio" name="ensurance" id="third" value="third" required />
+                            <label for="third">Terzo Livello</label>
+                        </li>
+                        <li>
+                            <label for="vehicle">Mezzo Preferito</label>
+                            <select name="vehicle" id="vehicle" >
+                                <option value="car">Automobile</option>
+                                <option value="motorbike">Moto</option>
+                                <option value="bicycle">Bicicletta</option>
+                                <option value="kick_scooter">Monopattino</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label for="ownership">Automunito</label>
+                            <input type="checkbox" name="ownership" id="ownership" />
+                        </li>
+                        <li>
+                            <label for="description">Descrizione</label>
+                            <textarea name="description" id="description"></textarea>
+                        </li>
+                    </ul>
+                </fieldset>
+
+                <input type="submit" value="Invia">
+                <input type="reset" value="Cancella">
+                
+            </form>
+        </main>
+    </body>
+    </html>
