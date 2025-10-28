@@ -28,6 +28,10 @@
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_rectpack.h" />
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +42,12 @@
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_tables.cpp" />
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
