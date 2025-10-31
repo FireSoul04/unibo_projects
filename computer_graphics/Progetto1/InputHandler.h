@@ -2,25 +2,37 @@
 
 #include <GLFW/glfw3.h>
 
-constexpr int MAX_KEYS = GLFW_KEY_LAST;
+#include <functional>
 
 class InputHandler {
 
 public:
+	enum Action {
+		MOVE_LEFT,
+		MOVE_RIGHT,
+		MOVE_UP,
+		MOVE_DOWN,
+		SHOOT,
+		// TURBO, // FORSE
+		QUIT,
+
+		ACTION_COUNT
+	};
+
 	InputHandler();
 
-	bool isKeyPressed(int scancode);
-	bool isKeyPressedOnce(int scancode);
+	bool isKeyPressed(Action scancode);
+	bool isKeyPressedOnce(Action scancode);
 
 	void pressKey(int scancode);
 	void releaseKey(int scancode);
 
 private:
 	struct Key {
-		int scancode;
+		int action;
 		bool alreadyPressed;
 	};
 
-	bool keyPressed[MAX_KEYS];
-	Key keys[MAX_KEYS];
+	bool keyPressed[ACTION_COUNT];
+	Key keys[ACTION_COUNT];
 };

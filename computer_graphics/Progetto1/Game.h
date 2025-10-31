@@ -7,13 +7,13 @@ class Game {
 	
 public:
 	Game(const int width, const int height);
-	~Game();
 
 	void run();
+	void update(float dt);
 
 private:
-	const int width;
-	const int height;
+	int width;
+	int height;
 	
 	Window window;
 	Scene scene;

@@ -28,13 +28,19 @@
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_rectpack.h" />
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imstb_truetype.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="InputHandler.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Window.h" />
+    <ClInclude Include="earcut.hpp" />
+    <ClInclude Include="gestione_curve.h" />
+    <ClInclude Include="gestione_interazioni.h" />
+    <ClInclude Include="Gui.h" />
+    <ClInclude Include="Init_Finestra_Eventi.h" />
+    <ClInclude Include="init_geometrie.h" />
+    <ClInclude Include="init_GLFW_OpenGL.h" />
+    <ClInclude Include="inizializzazioni.h" />
+    <ClInclude Include="lib.h" />
+    <ClInclude Include="rendering.h" />
+    <ClInclude Include="Scena.h" />
+    <ClInclude Include="ShaderMaker.h" />
+    <ClInclude Include="strutture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui.cpp" />
@@ -44,26 +50,32 @@
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_tables.cpp" />
     <ClCompile Include="..\..\..\..\..\..\dependencies_GL_GLFW\ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="gestione_curve.cpp" />
+    <ClCompile Include="gestione_interazioni.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="InputHandler.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="Init_Finestra_Eventi.cpp" />
+    <ClCompile Include="init_geometrie.cpp" />
+    <ClCompile Include="init_GLFW_OpenGL.cpp" />
+    <ClCompile Include="inizializzazioni.cpp" />
+    <ClCompile Include="Laboratorio30_Ottobre_2025 .cpp" />
+    <ClCompile Include="rendering.cpp" />
+    <ClCompile Include="Scena.cpp" />
+    <ClCompile Include="ShaderMaker.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragment.glsl" />
+    <None Include="fragmentShaderM.glsl" />
     <None Include="packages.config" />
-    <None Include="vertex.glsl" />
+    <None Include="vertexShaderM.glsl" />
+    <None Include="vertexShaderM_CP.glsl" />
+    <None Include="vertexShaderM_TG.glsl" />
+    <None Include="vertexShaderM_Triangl.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{49a54414-531b-4bb2-be22-bb6ec41af5a4}</ProjectGuid>
-    <RootNamespace>Progetto1</RootNamespace>
+    <ProjectGuid>{7bbb6d53-78ec-4a77-b49c-7f5aa7c1cb9c}</ProjectGuid>
+    <RootNamespace>Laboratorio6</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
